@@ -11,5 +11,5 @@ bevy = { version = "0.10.1", features = ["dynamic_linking"] }
 [profile.dev]
 opt-level = 1
 
-[profile.dev.package.*]
+[profile.dev.package."*"]
 opt-level = 3
