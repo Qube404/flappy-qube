@@ -8,11 +8,13 @@ use bevy::{
 
 /// Constants: Setting up constant game values
 const TIME_STEP: f32 = 1. / 60.;
-const GRAVITY: f32 = -10.;
+const GRAVITY: f32 = -50.;
+const GRAVITY_CAP: f32 = -70.;
+const SPEED_CAP: f32 = 1500. * TIME_STEP;
 
 // Player properties
-const BIRD_SIZE: f32 = 100.;
-const BIRD_JUMP: f32 = 500.;
+const BIRD_SIZE: f32 = 50.;
+const BIRD_JUMP: f32 = 700.;
 const BIRD_POSITION: Vec3 = Vec3::new(0., 0., 0.);
 
 // Scoreboard properties
@@ -36,6 +38,9 @@ fn main() {
             (
                 apply_bird_gravity,
                 move_bird.after(apply_bird_gravity),
+                apply_velocity
+                    .after(apply_bird_gravity)
+                    .after(move_bird)
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -113,23 +118,35 @@ struct Scoreboard {
 // Player Movement
 fn move_bird(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<&mut Transform, With<Bird>>,
+    mut query: Query<&mut Velocity, With<Bird>>,
 ) {
-    let mut bird_transform = query.single_mut();
+    let mut bird_velocity = query.single_mut();
     let mut pressed = 0.0;
     
     if keyboard_input.pressed(KeyCode::Space) {
         pressed += 1.0;
     }
 
-    bird_transform.translation.y += pressed * BIRD_JUMP * TIME_STEP;
-    
+    if bird_velocity.y < SPEED_CAP {
+        bird_velocity.y += pressed * BIRD_JUMP * TIME_STEP;
+    }
 }
 
 fn apply_bird_gravity(
-    mut query: Query<(&mut Transform, &Velocity), With<Bird>>
+    mut query: Query<&mut Velocity, With<Bird>>
 ) {
-    let (mut bird_transform, bird_velocity) = query.single_mut(); 
+    let mut bird_velocity = query.single_mut(); 
 
-    bird_transform.translation.y += bird_velocity.y * GRAVITY * TIME_STEP;
+    if bird_velocity.y > GRAVITY_CAP {
+        bird_velocity.y += GRAVITY * TIME_STEP;
+    }
+}
+
+fn apply_velocity(
+    mut query: Query<(&Velocity, &mut Transform)>
+) {
+    for (velocity, mut transform) in &mut query {
+        transform.translation.x += velocity.x;
+        transform.translation.y += velocity.y;
+    }
 }
