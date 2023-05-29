@@ -8,12 +8,10 @@ use bevy::{
 
 /// Constants: Setting up constant game values
 const TIME_STEP: f32 = 1. / 60.;
-const GRAVITY: f32 = -50.;
-const GRAVITY_CAP: f32 = -70.;
-const SPEED_CAP: f32 = 1500. * TIME_STEP;
+const GRAVITY: f32 = -40.;
 
 // Player properties
-const BIRD_SIZE: f32 = 50.;
+const BIRD_SIZE: f32 = 30.;
 const BIRD_JUMP: f32 = 700.;
 const BIRD_POSITION: Vec3 = Vec3::new(0., 0., 0.);
 
@@ -72,6 +70,11 @@ fn setup(
                 Vec2::new(0., 0.)
             ),
 
+            GravityCap(-70.),
+            SpeedCap(
+                Vec2::new(0., 1500. * TIME_STEP)
+            ),
+
             Bird,
         ));
 
@@ -110,6 +113,12 @@ struct Velocity(Vec2);
 #[derive(Component)]
 struct Pipe;
 
+#[derive(Component, Deref, DerefMut)]
+struct GravityCap(f32);
+
+#[derive(Component, Deref, DerefMut)]
+struct SpeedCap(Vec2);
+
 #[derive(Resource)]
 struct Scoreboard {
     score: i128,
@@ -118,34 +127,33 @@ struct Scoreboard {
 // Player Movement
 fn move_bird(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<&mut Velocity, With<Bird>>,
+    mut query: Query<(&mut Velocity, &SpeedCap), With<Bird>>,
 ) {
-    let mut bird_velocity = query.single_mut();
-    let mut pressed = 0.0;
+    let (mut bird_velocity, speed_cap) = query.single_mut();
     
-    if keyboard_input.pressed(KeyCode::Space) {
-        pressed += 1.0;
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        if bird_velocity.y < speed_cap.y {
+            //bird_velocity.y += pressed * BIRD_JUMP * TIME_STEP;
+            bird_velocity.y = 1.3 * BIRD_JUMP * TIME_STEP;
+        }
     }
 
-    if bird_velocity.y < SPEED_CAP {
-        bird_velocity.y += pressed * BIRD_JUMP * TIME_STEP;
-    }
 }
 
 fn apply_bird_gravity(
-    mut query: Query<&mut Velocity, With<Bird>>
+    mut query: Query<(&mut Velocity, &GravityCap), With<Bird>>
 ) {
-    let mut bird_velocity = query.single_mut(); 
+    let (mut bird_velocity, gravity_cap) = query.single_mut(); 
 
-    if bird_velocity.y > GRAVITY_CAP {
+    if bird_velocity.y > **gravity_cap {
         bird_velocity.y += GRAVITY * TIME_STEP;
     }
 }
 
 fn apply_velocity(
-    mut query: Query<(&Velocity, &mut Transform)>
+    mut query: Query<(&mut Transform, &Velocity)>
 ) {
-    for (velocity, mut transform) in &mut query {
+    for (mut transform, velocity) in &mut query {
         transform.translation.x += velocity.x;
         transform.translation.y += velocity.y;
     }
