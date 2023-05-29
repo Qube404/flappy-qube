@@ -90,16 +90,16 @@ fn setup(
                 }
             )
             .with_style(
-                    Style {
-                        position_type: PositionType::Absolute,
-                        position: UiRect {
-                            top: SCOREBOARD_TOP_PADDING,
-                            left: SCOREBOARD_LEFT_PADDING,
-                            ..default()
-                        },
+                Style {
+                    position_type: PositionType::Absolute,
+                    position: UiRect {
+                        top: SCOREBOARD_TOP_PADDING,
+                        left: SCOREBOARD_LEFT_PADDING,
                         ..default()
-                    }
-                )
+                    },
+                    ..default()
+                }
+            )
         );
 
 }
@@ -124,7 +124,7 @@ struct Scoreboard {
     score: i128,
 }
 
-// Player Movement
+// Player Movement: Add to birds velocity when space is pressed
 fn move_bird(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Velocity, &SpeedCap), With<Bird>>,
@@ -140,6 +140,7 @@ fn move_bird(
 
 }
 
+// Apply gravity to player's velocity
 fn apply_bird_gravity(
     mut query: Query<(&mut Velocity, &GravityCap), With<Bird>>
 ) {
@@ -150,6 +151,8 @@ fn apply_bird_gravity(
     }
 }
 
+// Apply the velocity's calculated in other systems to the transforms
+// of the game entities
 fn apply_velocity(
     mut query: Query<(&mut Transform, &Velocity)>
 ) {
