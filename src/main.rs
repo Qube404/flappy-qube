@@ -77,7 +77,7 @@ fn setup(
                 "0",
                 TextStyle {
                     font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                    font_size: 52.0,
+                    font_size: 56.0,
                     color: TEXT_COLOR,
                 }
             )
