@@ -257,14 +257,10 @@ fn check_for_collisions(
 
     // Collision check
     for pipe_transform in &collider_query {
-        let collision = collide(
-            bird_transform.translation,
-            bird_size,
-            pipe_transform.translation,
-            pipe_transform.scale.truncate(),
-        );
+        let collision_x = bird_transform.translation.x - pipe_transform.translation.x;
 
-        if let Some(collision) = collision {
+        println!("Collision: {:?}\nBird: {:?}\nPipe: {:?}", collision_x, bird_transform, pipe_transform);
+        if collision_x < 1. && collision_x > -1. {
             collision_events.send_default();
         }
     }
