@@ -306,34 +306,31 @@ fn move_pipes(
         Query<(
             &mut Velocity, 
             &mut Transform, 
+            &mut Handle<ColorMaterial>,
             Option<&PipeSpotTop>, 
             Option<&PipeSpotBottom>, 
             Option<&PipePoint>), 
             With<Collider>
         >,
 ) {
-    let random_height: i32 = thread_rng().gen_range(300..=800); 
-    let pipe_height = random_height as f32;
+    let pipe_height: i32 = thread_rng().gen_range(/*300..=800*/10..=10); 
+    let pipe_height = pipe_height as f32;
 
-    for (mut velocity, mut transform, pipe_top, pipe_bottom, pipe_point) in &mut query_pipes {
-        velocity.x = -150. * TIME_STEP;
+    for (mut velocity, mut transform, mut color, pipe_top, pipe_bottom, pipe_point) in &mut query_pipes {
+        velocity.x = -300./*150.*/ * TIME_STEP;
 
         if transform.translation.x <= -1000. {
             transform.translation.x = 2000.;
 
             if pipe_top.is_some() {
                 transform.translation.y = pipe_height;
-                println!("{}", transform.translation.y ==  pipe_height)
-            }
-
-            if pipe_bottom.is_some() {
+                println!("Pipe Top: {pipe_height} {}", transform.translation.y);
+            } else if pipe_bottom.is_some() {
                 transform.translation.y = pipe_height - PIPE_DIFF;
-                println!("{}", transform.translation.y + PIPE_DIFF ==  pipe_height)
-            }
-
-            if pipe_point.is_some() {
-                transform.translation.y = pipe_height - PIPE_DIFF / 2.;
-                println!("{}", transform.translation.y + PIPE_DIFF / 2. ==  pipe_height)
+                println!("Pipe Bottom: {pipe_height} {}", transform.translation.y);
+            } else if pipe_point.is_some() {
+                transform.translation.y = pipe_height - PIPE_DIFF;
+                println!("Pipe Point: {pipe_height} {}", transform.translation.y);
             }
         }
     }
