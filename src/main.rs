@@ -20,6 +20,7 @@ const BIRD_JUMP: f32 = 800.;
 // Pipe Properties
 const PIPE_X_SIZE: f32 = 100.;
 const PIPE_Y_SIZE: f32 = 800.;
+const PIPE_DIFF: f32 = 1100.;
 
 // Scoreboard properties
 const SCOREBOARD_TOP_PADDING: Val = Val::Px(500.);
@@ -119,7 +120,6 @@ fn setup(
     for i in 1..=6 {
         let random_height: i32 = thread_rng().gen_range(300..=800); 
         let pipe_height = random_height as f32;
-        println!("{random_height} {pipe_height} {}", pipe_height - 600.);
 
         let color = i as f32 * 0.1;
         let color = Color::rgb(color, color, color);
@@ -143,6 +143,7 @@ fn setup(
                     collider: Collider, 
                     pipe: Pipe,
                 },
+                PipeSpotTop,
             ));
 
         commands
@@ -152,7 +153,7 @@ fn setup(
                         mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
                         material: materials.add(ColorMaterial::from(color/*PIPE_COLOR*/)),
                         transform: Transform {
-                            translation: Vec3::new(i as f32 * 500., pipe_height - 1100., 1.),
+                            translation: Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF, 1.),
                             scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
                             ..default()
                         },
@@ -165,7 +166,31 @@ fn setup(
                     collider: Collider, 
                     pipe: Pipe,
                 },
+                PipeSpotBottom,
             ));
+
+        commands
+            .spawn(
+                PipePointBundle {
+                    mesh_bundle: MaterialMesh2dBundle {
+                        mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
+                        material: materials.add(ColorMaterial::from(Color::rgba(0., 0., 0., 1.))),
+                        transform: Transform {
+                            translation: Vec3::new(i as f32 * 500. + PIPE_X_SIZE / 2., pipe_height - PIPE_DIFF / 2., 1.),
+                            scale: Vec3::new(1., 1100. - PIPE_Y_SIZE, 0.),
+                            ..default()
+                        },
+                        ..default()
+                    },
+
+                    velocity: Velocity(
+                        Vec2::new(0., 0.)
+                    ),
+
+                    collider: Collider,
+                    pipe_point: PipePoint,
+                },
+            );
     }
 
     // Score
@@ -212,10 +237,21 @@ struct PipeBundle {
     pipe: Pipe,
 }
 
+#[derive(Component)]
+struct PipePoint;
+
+#[derive(Component)]
+struct PipeSpotTop;
+
+#[derive(Component)]
+struct PipeSpotBottom;
+
 #[derive(Bundle)]
-struct PipePairBundle {
-    pipe1: PipeBundle,
-    pipe2: PipeBundle,
+struct PipePointBundle {
+    mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
+    velocity: Velocity,
+    collider: Collider,
+    pipe_point: PipePoint,
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -266,22 +302,40 @@ fn move_bird(
 // the value in the entity so that a more complex movement
 // system can be added later.
 fn move_pipes(
-    mut query: Query<(&mut Velocity, &mut Transform), With<Pipe>>,
+    mut query_pipes: 
+        Query<(
+            &mut Velocity, 
+            &mut Transform, 
+            Option<&PipeSpotTop>, 
+            Option<&PipeSpotBottom>, 
+            Option<&PipePoint>), 
+            With<Collider>
+        >,
 ) {
-    let mut i = 0;
-    for (mut velocity, mut transform) in &mut query {
+    let random_height: i32 = thread_rng().gen_range(300..=800); 
+    let pipe_height = random_height as f32;
+
+    for (mut velocity, mut transform, pipe_top, pipe_bottom, pipe_point) in &mut query_pipes {
         velocity.x = -150. * TIME_STEP;
 
         if transform.translation.x <= -1000. {
             transform.translation.x = 2000.;
 
-            let random_height: i32 = thread_rng().gen_range(300..=800); 
-            let pipe_height = random_height as f32;
+            if pipe_top.is_some() {
+                transform.translation.y = pipe_height;
+                println!("{}", transform.translation.y ==  pipe_height)
+            }
 
-            
+            if pipe_bottom.is_some() {
+                transform.translation.y = pipe_height - PIPE_DIFF;
+                println!("{}", transform.translation.y + PIPE_DIFF ==  pipe_height)
+            }
+
+            if pipe_point.is_some() {
+                transform.translation.y = pipe_height - PIPE_DIFF / 2.;
+                println!("{}", transform.translation.y + PIPE_DIFF / 2. ==  pipe_height)
+            }
         }
-        println!("Pipe {i}: {}", transform.translation.y);
-        i += 1;
     }
 }
 
