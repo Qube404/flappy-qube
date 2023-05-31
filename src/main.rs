@@ -116,7 +116,7 @@ fn setup(
             Bird,
         ));
 
-    // Pipes
+    // Pipes 
     for i in 1..=6 {
         let random_height: i32 = thread_rng().gen_range(300..=800); 
         let pipe_height = random_height as f32;
@@ -237,13 +237,13 @@ struct PipeBundle {
     pipe: Pipe,
 }
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 struct PipePoint;
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 struct PipeSpotTop;
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 struct PipeSpotBottom;
 
 #[derive(Bundle)]
@@ -301,36 +301,34 @@ fn move_bird(
 // It's better to isolate this to a system rather then hardcode
 // the value in the entity so that a more complex movement
 // system can be added later.
+//
+// Why the fuck does a copied value of a randomly generated
+// number change throughout different iterations of a loop?!?!
 fn move_pipes(
     mut query_pipes: 
         Query<(
             &mut Velocity, 
             &mut Transform, 
-            &mut Handle<ColorMaterial>,
             Option<&PipeSpotTop>, 
             Option<&PipeSpotBottom>, 
             Option<&PipePoint>), 
             With<Collider>
         >,
 ) {
-    let pipe_height: i32 = thread_rng().gen_range(/*300..=800*/10..=10); 
-    let pipe_height = pipe_height as f32;
-
-    for (mut velocity, mut transform, mut color, pipe_top, pipe_bottom, pipe_point) in &mut query_pipes {
-        velocity.x = -300./*150.*/ * TIME_STEP;
+    for (mut velocity, mut transform, pipe_top, pipe_bottom, pipe_point) in &mut query_pipes {
+        let random_height: i32 = thread_rng().gen_range(300..=800); 
+        let pipe_height = random_height as f32;
+        velocity.x = -500./*150.*/ * TIME_STEP;
 
         if transform.translation.x <= -1000. {
             transform.translation.x = 2000.;
 
             if pipe_top.is_some() {
-                transform.translation.y = pipe_height;
-                println!("Pipe Top: {pipe_height} {}", transform.translation.y);
+                transform.translation.y = pipe_height as f32;
             } else if pipe_bottom.is_some() {
-                transform.translation.y = pipe_height - PIPE_DIFF;
-                println!("Pipe Bottom: {pipe_height} {}", transform.translation.y);
+                transform.translation.y = pipe_height as f32 - PIPE_DIFF;
             } else if pipe_point.is_some() {
-                transform.translation.y = pipe_height - PIPE_DIFF;
-                println!("Pipe Point: {pipe_height} {}", transform.translation.y);
+                transform.translation.y = pipe_height as f32 - PIPE_DIFF / 2.;
             }
         }
     }
