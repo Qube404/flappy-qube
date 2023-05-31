@@ -7,6 +7,8 @@ use bevy::{
     sprite::collide_aabb::collide,
 };
 
+use rand::prelude::*;
+
 /// Constants: Setting up constant game values
 const TIME_STEP: f32 = 1. / 60.;
 const GRAVITY: f32 = -40.;
@@ -14,11 +16,10 @@ const GRAVITY: f32 = -40.;
 // Player properties
 const BIRD_SIZE: f32 = 30.;
 const BIRD_JUMP: f32 = 800.;
-const BIRD_POSITION: Vec3 = Vec3::new(0., 0., 1.);
 
 // Pipe Properties
 const PIPE_X_SIZE: f32 = 100.;
-const PIPE_Y_SIZE: f32 = 500.;
+const PIPE_Y_SIZE: f32 = 800.;
 
 // Scoreboard properties
 const SCOREBOARD_TOP_PADDING: Val = Val::Px(500.);
@@ -115,15 +116,21 @@ fn setup(
         ));
 
     // Pipes
-    for i in 0..6 {
+    for i in 1..=6 {
+        let random_height: i32 = thread_rng().gen_range(300..=800); 
+        let pipe_height = random_height as f32;
+        println!("{random_height} {pipe_height} {}", pipe_height - 600.);
+
+        let color = i as f32 * 0.1;
+        let color = Color::rgb(color, color, color);
         commands
             .spawn((
                 PipeBundle {
                     mesh_bundle: MaterialMesh2dBundle {
                         mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                        material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                        material: materials.add(ColorMaterial::from(color/*PIPE_COLOR*/)),
                         transform: Transform {
-                            translation: Vec3::new(i as f32 * 500., 400., 1.),
+                            translation: Vec3::new(i as f32 * 500., pipe_height, 1.),
                             scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
                             ..default()
                         },
@@ -143,9 +150,9 @@ fn setup(
                 PipeBundle {
                     mesh_bundle: MaterialMesh2dBundle {
                         mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                        material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                        material: materials.add(ColorMaterial::from(color/*PIPE_COLOR*/)),
                         transform: Transform {
-                            translation: Vec3::new(i as f32 * 500., -400., 1.),
+                            translation: Vec3::new(i as f32 * 500., pipe_height - 1100., 1.),
                             scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
                             ..default()
                         },
@@ -205,6 +212,12 @@ struct PipeBundle {
     pipe: Pipe,
 }
 
+#[derive(Bundle)]
+struct PipePairBundle {
+    pipe1: PipeBundle,
+    pipe2: PipeBundle,
+}
+
 #[derive(Component, Deref, DerefMut)]
 struct GravityCap(f32);
 
@@ -255,12 +268,20 @@ fn move_bird(
 fn move_pipes(
     mut query: Query<(&mut Velocity, &mut Transform), With<Pipe>>,
 ) {
+    let mut i = 0;
     for (mut velocity, mut transform) in &mut query {
         velocity.x = -150. * TIME_STEP;
 
-        if transform.translation.x <= -500. {
-            transform.translation.x = 500.
+        if transform.translation.x <= -1000. {
+            transform.translation.x = 2000.;
+
+            let random_height: i32 = thread_rng().gen_range(300..=800); 
+            let pipe_height = random_height as f32;
+
+            
         }
+        println!("Pipe {i}: {}", transform.translation.y);
+        i += 1;
     }
 }
 
@@ -312,9 +333,15 @@ fn check_for_collisions(
             pipe_transform.scale.truncate(),
         );
 
+        // If there was a collision send a collision event
         if collision.is_some() {
             collision_events.send_default();
         }
+
+        // Checks if bird is past pipe and adds to score if it is
+        if bird_transform.translation.x > pipe_transform.translation.x {
+            scoreboard.score += 1;
+        } 
     }
 }
 
@@ -359,11 +386,13 @@ fn spawn_lines(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    collision_events: EventReader<CollisionEvent>
+    collision_events: EventReader<CollisionEvent>,
+    asset_server: Res<AssetServer>,
 ) {
     let bird_transform = bird_query.single();
     for pipe_transform in &collider_query {
         let line_x_position = pipe_transform.translation.x - PIPE_X_SIZE / 2.;
+
 
         commands.spawn(MaterialMesh2dBundle {
             mesh: meshes.add(shape::Box::new(5., 1100., 2.).into()).into(),
