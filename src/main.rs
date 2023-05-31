@@ -1,10 +1,10 @@
-#![allow(dead_code)]
 /// A version of flappy bird
 
 use bevy::{
     prelude::*,
     sprite::MaterialMesh2dBundle,
-    sprite::collide_aabb::{collide, Collision},
+    sprite::Mesh2dHandle,
+    sprite::collide_aabb::collide,
 };
 
 /// Constants: Setting up constant game values
@@ -13,12 +13,12 @@ const GRAVITY: f32 = -40.;
 
 // Player properties
 const BIRD_SIZE: f32 = 30.;
-const BIRD_JUMP: f32 = 700. * 1.4;
+const BIRD_JUMP: f32 = 800.;
 const BIRD_POSITION: Vec3 = Vec3::new(0., 0., 1.);
 
 // Pipe Properties
 const PIPE_X_SIZE: f32 = 100.;
-const PIPE_Y_SIZE: f32 = 2000.;
+const PIPE_Y_SIZE: f32 = 500.;
 
 // Scoreboard properties
 const SCOREBOARD_TOP_PADDING: Val = Val::Px(500.);
@@ -62,6 +62,15 @@ fn main() {
                 move_pipes
                     .before(apply_velocity)
                     .before(check_for_collisions),
+
+                /*
+                spawn_lines
+                    .after(move_pipes),
+
+                despawn_lines
+                    .after(spawn_lines)
+                    .after(move_pipes),
+                */
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -83,9 +92,13 @@ fn setup(
     commands
         .spawn((
             MaterialMesh2dBundle {
-                mesh: meshes.add(shape::Circle::new(BIRD_SIZE).into()).into(),
+                mesh: meshes.add(shape::Circle::new(1.).into()).into(),
                 material: materials.add(ColorMaterial::from(BIRD_COLOR)),
-                transform: Transform::from_translation(BIRD_POSITION),
+                transform: Transform {
+                    translation: Vec3::new(0., 0., 2.),
+                    scale: Vec3::new(BIRD_SIZE, BIRD_SIZE, 1.),
+                    ..default()
+                },
                 ..default()
             },
 
@@ -102,23 +115,51 @@ fn setup(
         ));
 
     // Pipes
-    commands
-        .spawn((
-            PipeBundle {
-                mesh_bundle: MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Box::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.).into()).into(),
-                    material: materials.add(ColorMaterial::from(PIPE_COLOR)),
-                    transform: Transform::from_translation(Vec3::new(500., 0., 0.)),
-                    ..default()
-                },
+    for i in 0..6 {
+        commands
+            .spawn((
+                PipeBundle {
+                    mesh_bundle: MaterialMesh2dBundle {
+                        mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
+                        material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                        transform: Transform {
+                            translation: Vec3::new(i as f32 * 500., 400., 1.),
+                            scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
+                            ..default()
+                        },
+                        ..default()
+                    },
 
-                velocity: Velocity(
-                    Vec2::new(0., 0.)
-                ),
-                collider: Collider, 
-                pipe: Pipe,
-            },
-        ));
+                    velocity: Velocity(
+                        Vec2::new(0., 0.)
+                    ),
+                    collider: Collider, 
+                    pipe: Pipe,
+                },
+            ));
+
+        commands
+            .spawn((
+                PipeBundle {
+                    mesh_bundle: MaterialMesh2dBundle {
+                        mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
+                        material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                        transform: Transform {
+                            translation: Vec3::new(i as f32 * 500., -400., 1.),
+                            scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
+                            ..default()
+                        },
+                        ..default()
+                    },
+
+                    velocity: Velocity(
+                        Vec2::new(0., 0.)
+                    ),
+                    collider: Collider, 
+                    pipe: Pipe,
+                },
+            ));
+    }
 
     // Score
     commands
@@ -184,6 +225,9 @@ struct Scoreboard {
 #[derive(Component)]
 struct ScoreboardText;
 
+#[derive(Component)]
+struct MarkerLine;
+
 // Player Movement: Add to birds velocity when space is pressed
 fn move_bird(
     keyboard_input: Res<Input<KeyCode>>,
@@ -209,10 +253,14 @@ fn move_bird(
 // the value in the entity so that a more complex movement
 // system can be added later.
 fn move_pipes(
-    mut query: Query<&mut Velocity, With<Pipe>>,
+    mut query: Query<(&mut Velocity, &mut Transform), With<Pipe>>,
 ) {
-    for mut pipe_velocity in &mut query {
-        pipe_velocity.x = -50. * TIME_STEP;
+    for (mut velocity, mut transform) in &mut query {
+        velocity.x = -150. * TIME_STEP;
+
+        if transform.translation.x <= -500. {
+            transform.translation.x = 500.
+        }
     }
 }
 
@@ -251,16 +299,20 @@ fn check_for_collisions(
     mut bird_query: Query<&Transform, With<Bird>>, 
     collider_query: Query<&Transform, (With<Collider>, With<Pipe>)>,
     mut collision_events: EventWriter<CollisionEvent>,
+    mut scoreboard: ResMut<Scoreboard>,
 ) {
     let bird_transform = bird_query.single_mut();
-    let bird_size = bird_transform.scale.truncate();
 
     // Collision check
     for pipe_transform in &collider_query {
-        let collision_x = bird_transform.translation.x - pipe_transform.translation.x;
+        let collision = collide(
+            bird_transform.translation,
+            bird_transform.scale.truncate(),
+            pipe_transform.translation,
+            pipe_transform.scale.truncate(),
+        );
 
-        println!("Collision: {:?}\nBird: {:?}\nPipe: {:?}", collision_x, bird_transform, pipe_transform);
-        if collision_x < 1. && collision_x > -1. {
+        if collision.is_some() {
             collision_events.send_default();
         }
     }
@@ -295,5 +347,66 @@ fn game_over(
                     }
                 )
             );
+    }
+}
+
+// Debugging Functions
+//
+// Spawns appropriate lines for showing interaction between game entities
+fn spawn_lines(
+    collider_query: Query<&Transform, (With<Collider>, With<Pipe>)>,
+    bird_query: Query<&Transform, With<Bird>>,
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    collision_events: EventReader<CollisionEvent>
+) {
+    let bird_transform = bird_query.single();
+    for pipe_transform in &collider_query {
+        let line_x_position = pipe_transform.translation.x - PIPE_X_SIZE / 2.;
+
+        commands.spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Box::new(5., 1100., 2.).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::rgb(0., 0., 0.))),
+            transform: Transform::from_translation(Vec3::new(line_x_position, 0., 2.)),
+            ..default()
+        });
+
+        commands.spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Box::new(5., 5., 2.).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::rgb(1., 0., 0.))),
+            transform: Transform::from_translation(pipe_transform.translation),
+            ..default()
+        });
+
+        commands.spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Box::new(5., 5., 2.).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::rgb(1., 0., 0.))),
+            transform: Transform::from_translation(bird_transform.translation),
+            ..default()
+        });
+
+        if !collision_events.is_empty() {
+            commands.spawn((MaterialMesh2dBundle {
+                mesh: meshes.add(shape::Box::new(5., 1100., 2.).into()).into(),
+                material: materials.add(ColorMaterial::from(Color::rgb(1., 0., 0.))),
+                transform: Transform::from_translation(Vec3::new(line_x_position, 0., 2.)),
+                ..default()
+                },
+
+                MarkerLine,
+            ));
+        }
+    }
+
+}
+
+// Despawns the lines spawned by spawn_lines
+fn despawn_lines(
+    query: Query<Entity, (With<Mesh2dHandle>, Without<Pipe>, Without<Bird>, Without<MarkerLine>)>,
+    mut commands: Commands,
+) {
+    for entity in &query {
+        commands.entity(entity).despawn();
     }
 }
