@@ -10,7 +10,7 @@ use bevy::{
 use rand::prelude::*;
 
 /// Constants: Setting up constant game values
-const TIME_STEP: f32 = 1. / 60.;
+const TIME_STEP: f32 = 1. / 120.;
 const GRAVITY: f32 = -40.;
 
 // Player properties
@@ -62,7 +62,7 @@ fn main() {
                 game_over
                     .after(check_for_collisions),
 
-                move_pipes
+                move_pipe_parts
                     .before(apply_velocity)
                     .before(check_for_collisions),
 
@@ -118,7 +118,7 @@ fn setup(
         ));
 
     // Pipes 
-    for i in 1..=PIPE_AMOUNT {
+    for i in 1..=2/*PIPE_AMOUNT*/ {
         let random_height: i32 = thread_rng().gen_range(300..=800); 
         let pipe_height = random_height as f32;
 
@@ -143,9 +143,9 @@ fn setup(
                     ),
                     offset: Offset(0.),
                     collider: Collider, 
+                    pipe_part: PipePart,
                     pipe: Pipe,
                 },
-                TopPipe,
             ));
 
         commands
@@ -167,9 +167,9 @@ fn setup(
                     ),
                     offset: Offset(-PIPE_DIFF),
                     collider: Collider, 
+                    pipe_part: PipePart,
                     pipe: Pipe,
                 },
-                BottomPipe,
             ));
 
         commands
@@ -180,7 +180,7 @@ fn setup(
                         material: materials.add(ColorMaterial::from(color/*Color::rgba(0., 0., 0., 1.)*/)),
                         transform: Transform {
                             translation: Vec3::new(i as f32 * 500. + PIPE_X_SIZE / 2., pipe_height - PIPE_DIFF / 2., 1.),
-                            scale: Vec3::new(10., 1100. - PIPE_Y_SIZE, 0.),
+                            scale: Vec3::new(PIPE_X_SIZE/*10.*/, /*1100. - */PIPE_Y_SIZE, 0.),
                             ..default()
                         },
                         ..default()
@@ -192,8 +192,8 @@ fn setup(
 
                     collider: Collider,
                     offset: Offset(-PIPE_DIFF / 2.),
+                    pipe_part: PipePart
                 },
-                PointPipe,
             ));
     }
 
@@ -233,12 +233,16 @@ struct Velocity(Vec2);
 #[derive(Component)]
 struct Pipe;
 
+#[derive(Component)]
+struct PipePart;
+
 #[derive(Bundle)]
 struct PipeBundle {
     mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
     velocity: Velocity,
     collider: Collider,
     offset: Offset,
+    pipe_part: PipePart,
     pipe: Pipe,
 }
 
@@ -248,16 +252,8 @@ struct PipePointBundle {
     velocity: Velocity,
     collider: Collider,
     offset: Offset,
+    pipe_part: PipePart,
 }
-
-#[derive(Component)]
-struct TopPipe;
-
-#[derive(Component)]
-struct BottomPipe;
-
-#[derive(Component)]
-struct PointPipe;
 
 #[derive(Component, Deref, DerefMut)]
 struct GravityCap(f32);
@@ -312,41 +308,19 @@ fn move_bird(
 //
 // Why the fuck does a copied value of a randomly generated
 // number change throughout different iterations of a loop?!?!
-fn move_pipes(
-    mut query_top_pipes: 
-        Query<
-            (&mut Velocity, &mut Transform, &Offset), 
-            (With<TopPipe>, Without<BottomPipe>, Without<PointPipe>)
-        >, 
-    mut query_bottom_pipes: 
-        Query<
-            (&mut Velocity, &mut Transform, &Offset), 
-            (With<BottomPipe>, Without<TopPipe>, Without<PointPipe>)
-        >, 
-    mut query_point_pipes: 
-        Query<
-            (&mut Velocity, &mut Transform, &Offset), 
-            (With<PointPipe>, Without<TopPipe>, Without<BottomPipe>)
-        >, 
+fn move_pipe_parts(
+    mut query_pipes: Query<(&mut Transform, &mut Velocity, &Offset), With<PipePart>>,
 ) {
-    let mut rand: ThreadRng = thread_rng(); 
-    let mut pipe_heights: Vec<f32> = Vec::new();
+    let pipe_height = thread_rng()
+        .gen_range(300..=800) as f32;
 
-    for i in 0..PIPE_AMOUNT {
-        pipe_heights.push(rand.gen_range(300..=800) as f32);
-    }
-
-    let mut i = 0;
-    for (mut velocity, mut transform, offset) in query_point_pipes.iter_mut() {
+    for (mut transform, mut velocity, offset) in &mut query_pipes {
         velocity.x = -500./*150.*/ * TIME_STEP;
-        let pipe_height = pipe_heights.get(i).unwrap() + offset.0;
 
-        if transform.translation.x <= -1000. {
-            transform.translation.x = 2000.;
-            transform.translation.y = pipe_height;
+        if transform.translation.x <= -500. {
+            transform.translation.x = 500.;
+            transform.translation.y = pipe_height + offset.0;
         }
-        i += 1;
-        assert_eq!(pipe_height, pipe_heights.get(i).unwrap() + offset.0);
     }
 }
 
