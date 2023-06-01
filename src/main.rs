@@ -21,6 +21,7 @@ const BIRD_JUMP: f32 = 800.;
 const PIPE_X_SIZE: f32 = 100.;
 const PIPE_Y_SIZE: f32 = 800.;
 const PIPE_DIFF: f32 = 1100.;
+const PIPE_AMOUNT: i32 = 6;
 
 // Scoreboard properties
 const SCOREBOARD_TOP_PADDING: Val = Val::Px(500.);
@@ -117,7 +118,7 @@ fn setup(
         ));
 
     // Pipes 
-    for i in 1..=6 {
+    for i in 1..=PIPE_AMOUNT {
         let random_height: i32 = thread_rng().gen_range(300..=800); 
         let pipe_height = random_height as f32;
 
@@ -140,10 +141,11 @@ fn setup(
                     velocity: Velocity(
                         Vec2::new(0., 0.)
                     ),
+                    offset: Offset(0.),
                     collider: Collider, 
                     pipe: Pipe,
                 },
-                PipeSpotTop,
+                TopPipe,
             ));
 
         commands
@@ -163,21 +165,22 @@ fn setup(
                     velocity: Velocity(
                         Vec2::new(0., 0.)
                     ),
+                    offset: Offset(-PIPE_DIFF),
                     collider: Collider, 
                     pipe: Pipe,
                 },
-                PipeSpotBottom,
+                BottomPipe,
             ));
 
         commands
-            .spawn(
+            .spawn((
                 PipePointBundle {
                     mesh_bundle: MaterialMesh2dBundle {
                         mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                        material: materials.add(ColorMaterial::from(Color::rgba(0., 0., 0., 1.))),
+                        material: materials.add(ColorMaterial::from(color/*Color::rgba(0., 0., 0., 1.)*/)),
                         transform: Transform {
                             translation: Vec3::new(i as f32 * 500. + PIPE_X_SIZE / 2., pipe_height - PIPE_DIFF / 2., 1.),
-                            scale: Vec3::new(1., 1100. - PIPE_Y_SIZE, 0.),
+                            scale: Vec3::new(10., 1100. - PIPE_Y_SIZE, 0.),
                             ..default()
                         },
                         ..default()
@@ -188,9 +191,10 @@ fn setup(
                     ),
 
                     collider: Collider,
-                    pipe_point: PipePoint,
+                    offset: Offset(-PIPE_DIFF / 2.),
                 },
-            );
+                PointPipe,
+            ));
     }
 
     // Score
@@ -234,25 +238,26 @@ struct PipeBundle {
     mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
     velocity: Velocity,
     collider: Collider,
+    offset: Offset,
     pipe: Pipe,
 }
-
-#[derive(Component, Debug)]
-struct PipePoint;
-
-#[derive(Component, Debug)]
-struct PipeSpotTop;
-
-#[derive(Component, Debug)]
-struct PipeSpotBottom;
 
 #[derive(Bundle)]
 struct PipePointBundle {
     mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
     velocity: Velocity,
     collider: Collider,
-    pipe_point: PipePoint,
+    offset: Offset,
 }
+
+#[derive(Component)]
+struct TopPipe;
+
+#[derive(Component)]
+struct BottomPipe;
+
+#[derive(Component)]
+struct PointPipe;
 
 #[derive(Component, Deref, DerefMut)]
 struct GravityCap(f32);
@@ -265,6 +270,9 @@ struct Collider;
 
 #[derive(Default)]
 struct CollisionEvent;
+
+#[derive(Component)]
+struct Offset(f32);
 
 #[derive(Resource)]
 struct Scoreboard {
@@ -305,32 +313,40 @@ fn move_bird(
 // Why the fuck does a copied value of a randomly generated
 // number change throughout different iterations of a loop?!?!
 fn move_pipes(
-    mut query_pipes: 
-        Query<(
-            &mut Velocity, 
-            &mut Transform, 
-            Option<&PipeSpotTop>, 
-            Option<&PipeSpotBottom>, 
-            Option<&PipePoint>), 
-            With<Collider>
-        >,
+    mut query_top_pipes: 
+        Query<
+            (&mut Velocity, &mut Transform, &Offset), 
+            (With<TopPipe>, Without<BottomPipe>, Without<PointPipe>)
+        >, 
+    mut query_bottom_pipes: 
+        Query<
+            (&mut Velocity, &mut Transform, &Offset), 
+            (With<BottomPipe>, Without<TopPipe>, Without<PointPipe>)
+        >, 
+    mut query_point_pipes: 
+        Query<
+            (&mut Velocity, &mut Transform, &Offset), 
+            (With<PointPipe>, Without<TopPipe>, Without<BottomPipe>)
+        >, 
 ) {
-    for (mut velocity, mut transform, pipe_top, pipe_bottom, pipe_point) in &mut query_pipes {
-        let random_height: i32 = thread_rng().gen_range(300..=800); 
-        let pipe_height = random_height as f32;
+    let mut rand: ThreadRng = thread_rng(); 
+    let mut pipe_heights: Vec<f32> = Vec::new();
+
+    for i in 0..PIPE_AMOUNT {
+        pipe_heights.push(rand.gen_range(300..=800) as f32);
+    }
+
+    let mut i = 0;
+    for (mut velocity, mut transform, offset) in query_point_pipes.iter_mut() {
         velocity.x = -500./*150.*/ * TIME_STEP;
+        let pipe_height = pipe_heights.get(i).unwrap() + offset.0;
 
         if transform.translation.x <= -1000. {
             transform.translation.x = 2000.;
-
-            if pipe_top.is_some() {
-                transform.translation.y = pipe_height as f32;
-            } else if pipe_bottom.is_some() {
-                transform.translation.y = pipe_height as f32 - PIPE_DIFF;
-            } else if pipe_point.is_some() {
-                transform.translation.y = pipe_height as f32 - PIPE_DIFF / 2.;
-            }
+            transform.translation.y = pipe_height;
         }
+        i += 1;
+        assert_eq!(pipe_height, pipe_heights.get(i).unwrap() + offset.0);
     }
 }
 
