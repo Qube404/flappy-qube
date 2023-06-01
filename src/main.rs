@@ -316,8 +316,14 @@ fn move_pipe_parts(
 
     for (mut transform, mut velocity, offset) in &mut query_pipes {
         velocity.x = -500./*150.*/ * TIME_STEP;
+        let transform = transform.translation.x;
+        let width = PIPE_X_SIZE / 2.;
 
-        if transform.translation.x <= -500. {
+        // Notes for tommorow: Problem is with the pipe point hitting
+        // later then the pipes because its position is further
+        // then the pipes and thus is called at a different time with
+        // a different random number.
+        if transform <= -500.  {
             transform.translation.x = 500.;
             transform.translation.y = pipe_height + offset.0;
         }
