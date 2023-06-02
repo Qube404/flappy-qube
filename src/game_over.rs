@@ -1,10 +1,9 @@
-
 use bevy::prelude::*;
 
 pub fn game_over(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    collision_event: EventReader<super::CollisionEvent>,
+    collision_event: EventReader<super::bird::BirdCollisionEvent>,
 ) {
     if !collision_event.is_empty() {
         commands

@@ -6,12 +6,9 @@ use bevy::sprite::{
 
 use super::{
     Velocity, 
-    SpeedCap, 
-    GravityCap,
     TIME_STEP,
     GRAVITY,
     Collider,
-    CollisionEvent,
     scoreboard::Scoreboard,
     pipes::Pipe,
 };
@@ -43,8 +40,8 @@ pub fn setup(
             Vec2::new(0., 0.)
         ),
 
-        super::GravityCap(-70.),
-        super::SpeedCap(
+        GravityCap(-70.),
+        SpeedCap(
             Vec2::new(0., 1500. * TIME_STEP)
         ),
 
@@ -54,6 +51,15 @@ pub fn setup(
 
 #[derive(Component)]
 pub struct Bird;
+
+#[derive(Component, Deref, DerefMut)]
+pub struct GravityCap(f32);
+
+#[derive(Component, Deref, DerefMut)]
+pub struct SpeedCap(Vec2);
+
+#[derive(Default)]
+pub struct BirdCollisionEvent;
 
 // Player Movement: Add to birds velocity when space is pressed
 pub fn move_bird(
@@ -90,7 +96,7 @@ pub fn apply_bird_gravity(
 pub fn bird_pipe_collisions(
     mut bird_query: Query<&Transform, With<Bird>>, 
     collider_query: Query<&Transform, (With<Collider>, With<Pipe>)>,
-    mut collision_events: EventWriter<CollisionEvent>,
+    mut collision_events: EventWriter<BirdCollisionEvent>,
     mut scoreboard: ResMut<Scoreboard>,
 ) {
     let bird_transform = bird_query.single_mut();

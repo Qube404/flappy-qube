@@ -9,7 +9,6 @@ use super::{
     Collider,
 };
 
-
 // Constants
 const PIPE_X_SIZE: f32 = 100.;
 const PIPE_Y_SIZE: f32 = 800.;
@@ -22,7 +21,6 @@ pub fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    asset_server: Res<AssetServer>,
 ) {
     for i in 1..=PIPE_AMOUNT {
         let random_height: i32 = thread_rng().gen_range(300..=800); 

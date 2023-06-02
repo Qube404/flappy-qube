@@ -12,8 +12,6 @@ mod game_over;
 const TIME_STEP: f32 = 1. / 60.;
 const GRAVITY: f32 = -40.;
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 1.0);
-
-// Colors
 const BACKGROUND_COLOR: Color = Color::rgb(0.2, 0.5, 0.9);
 
 /// Main: Adding systems, resources, schedules, etc to game App
@@ -26,7 +24,7 @@ fn main() {
         .add_startup_system(pipes::setup)
         .add_startup_system(scoreboard::setup)
         .add_startup_system(camera::setup)
-        .add_event::<CollisionEvent>()
+        .add_event::<bird::BirdCollisionEvent>()
         .add_systems(
             (
                 bird::apply_bird_gravity,
@@ -54,15 +52,6 @@ fn main() {
 #[derive(Component, Deref, DerefMut)]
 pub struct Velocity(Vec2);
 
-#[derive(Component, Deref, DerefMut)]
-pub struct GravityCap(f32);
-
-#[derive(Component, Deref, DerefMut)]
-pub struct SpeedCap(Vec2);
-
 #[derive(Component)]
 pub struct Collider;
-
-#[derive(Default)]
-pub struct CollisionEvent;
 
