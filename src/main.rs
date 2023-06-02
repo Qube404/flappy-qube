@@ -62,9 +62,12 @@ fn main() {
                 game_over
                     .after(check_for_collisions),
 
-                move_pipe_parts
+                move_pipes
                     .before(apply_velocity)
                     .before(check_for_collisions),
+
+                move_point_markers
+                    .after(move_pipes),
 
                 /*
                 spawn_lines
@@ -143,7 +146,6 @@ fn setup(
                     ),
                     offset: Offset(0.),
                     collider: Collider, 
-                    pipe_part: PipePart,
                     pipe: Pipe,
                 },
             ));
@@ -167,7 +169,6 @@ fn setup(
                     ),
                     offset: Offset(-PIPE_DIFF),
                     collider: Collider, 
-                    pipe_part: PipePart,
                     pipe: Pipe,
                 },
             ));
@@ -192,7 +193,7 @@ fn setup(
 
                     collider: Collider,
                     offset: Offset(-PIPE_DIFF / 2.),
-                    pipe_part: PipePart
+                    point_marker: PointMarker,
                 },
             ));
     }
@@ -233,18 +234,17 @@ struct Velocity(Vec2);
 #[derive(Component)]
 struct Pipe;
 
-#[derive(Component)]
-struct PipePart;
-
 #[derive(Bundle)]
 struct PipeBundle {
     mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
     velocity: Velocity,
     collider: Collider,
     offset: Offset,
-    pipe_part: PipePart,
     pipe: Pipe,
 }
+
+#[derive(Component)]
+struct PointMarker;
 
 #[derive(Bundle)]
 struct PipePointBundle {
@@ -252,7 +252,7 @@ struct PipePointBundle {
     velocity: Velocity,
     collider: Collider,
     offset: Offset,
-    pipe_part: PipePart,
+    point_marker: PointMarker,
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -308,26 +308,32 @@ fn move_bird(
 //
 // Why the fuck does a copied value of a randomly generated
 // number change throughout different iterations of a loop?!?!
-fn move_pipe_parts(
-    mut query_pipes: Query<(&mut Transform, &mut Velocity, &Offset), With<PipePart>>,
+fn move_pipes(
+    mut query_pipes: Query<(&mut Transform, &mut Velocity, &Offset, Option<&PointMarker>), With<Collider>>,
 ) {
     let pipe_height = thread_rng()
         .gen_range(300..=800) as f32;
 
-    for (mut transform, mut velocity, offset) in &mut query_pipes {
+    for (mut transform, mut velocity, offset, point_marker) in &mut query_pipes {
         velocity.x = -500./*150.*/ * TIME_STEP;
-        let transform = transform.translation.x;
-        let width = PIPE_X_SIZE / 2.;
+
+        let x_pos = transform.translation.x;
 
         // Notes for tommorow: Problem is with the pipe point hitting
         // later then the pipes because its position is further
         // then the pipes and thus is called at a different time with
         // a different random number.
-        if transform <= -500.  {
-            transform.translation.x = 500.;
+        if x_pos <= -1000. || point_marker.is_some_and(|_| x_pos <= -1100.)  {
+            transform.translation.x = 2000.;
             transform.translation.y = pipe_height + offset.0;
-        }
+        } 
     }
+}
+
+fn move_point_markers(
+    mut query_pipes: Query<(&mut Transform, &mut Velocity, &Offset), With<PointMarker>>,
+) {
+
 }
 
 // Apply gravity to player's velocity
