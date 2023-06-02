@@ -15,7 +15,7 @@ const PIPE_Y_SIZE: f32 = 800.;
 const PIPE_DIFF: f32 = 1100.;
 const PIPE_AMOUNT: i32 = 6;
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
-const POINT_MARKER: Color = Color::rgba(0., 0., 0., 1.);
+const POINT_MARKER: Color = Color::rgba(0., 0., 0., 0.);
 
 // Initial Setup
 pub fn setup(
