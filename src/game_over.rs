@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+// Will eventually end the game when a collision event is
+// detected
 pub fn game_over(
     mut commands: Commands,
     asset_server: Res<AssetServer>,

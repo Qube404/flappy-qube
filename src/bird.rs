@@ -49,6 +49,7 @@ pub fn setup(
     ));
 }
 
+// Components, Resources, Events
 #[derive(Component)]
 pub struct Bird;
 
@@ -61,7 +62,7 @@ pub struct SpeedCap(Vec2);
 #[derive(Default)]
 pub struct BirdCollisionEvent;
 
-// Player Movement: Add to birds velocity when space is pressed
+// Player movement by adding to birds velocity
 pub fn move_bird(
     keyboard_input: Res<Input<KeyCode>>,
     mouse_input: Res<Input<MouseButton>>,
@@ -69,11 +70,14 @@ pub fn move_bird(
 ) {
     let (mut bird_velocity, speed_cap) = query.single_mut();
     
+    // Uses just_pressed instead of pressed so the fly button 
+    // can't be held down
     if 
         keyboard_input.just_pressed(KeyCode::Space) ||
         mouse_input.just_pressed(MouseButton::Left)
     {
-        // Caps the velocity.
+        // Caps the velocity so spamming doesn't
+        // endlessly speed up the player
         if bird_velocity.y < speed_cap.y {
             bird_velocity.y = BIRD_JUMP * TIME_STEP;
         }
@@ -93,6 +97,7 @@ pub fn apply_bird_gravity(
     }
 }
 
+// Check for collisions with pipes
 pub fn bird_pipe_collisions(
     mut bird_query: Query<&Transform, With<Bird>>, 
     collider_query: Query<&Transform, (With<Collider>, With<Pipe>)>,
@@ -103,6 +108,7 @@ pub fn bird_pipe_collisions(
 
     // Collision check
     for pipe_transform in &collider_query {
+        // Collision checking function
         let collision = collide(
             bird_transform.translation,
             bird_transform.scale.truncate(),
@@ -122,8 +128,7 @@ pub fn bird_pipe_collisions(
     }
 }
 
-// Apply the velocity's calculated in other systems to the transforms
-// of the game entities
+// Apply velocity to birds transform
 pub fn apply_bird_velocity(
     mut query: Query<(&mut Transform, &Velocity), With<Bird>>
 ) {

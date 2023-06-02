@@ -17,88 +17,91 @@ const PIPE_AMOUNT: i32 = 6;
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
 const POINT_MARKER: Color = Color::rgba(0., 0., 0., 1.);
 
+// Initial Setup
 pub fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
+    // Spawns three entities per loop iteration. First is the top pipe,
+    // second is the bottom pipe and third is the point marker.
     for i in 1..=PIPE_AMOUNT {
-        let random_height: i32 = thread_rng().gen_range(300..=800); 
-        let pipe_height = random_height as f32;
+        let pipe_height: f32 = thread_rng().gen_range(300..=800) as f32; 
 
-        commands
-            .spawn((
-                PipeBundle {
-                    mesh_bundle: MaterialMesh2dBundle {
-                        mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                        material: materials.add(ColorMaterial::from(PIPE_COLOR)),
-                        transform: Transform {
-                            translation: Vec3::new(i as f32 * 500., pipe_height, 1.),
-                            scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
-                            ..default()
-                        },
+        // Top Pipes
+        commands.spawn((
+            PipeBundle {
+                mesh_bundle: MaterialMesh2dBundle {
+                    mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
+                    material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                    transform: Transform {
+                        translation: Vec3::new(i as f32 * 500., pipe_height, 1.),
+                        scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
                         ..default()
                     },
-
-                    velocity: Velocity(
-                        Vec2::new(0., 0.)
-                    ),
-                    offset: Offset(0.),
-                    collider: Collider, 
-                    pipe: Pipe,
+                    ..default()
                 },
-            ));
 
-        commands
-            .spawn((
-                PipeBundle {
-                    mesh_bundle: MaterialMesh2dBundle {
-                        mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                        material: materials.add(ColorMaterial::from(PIPE_COLOR)),
-                        transform: Transform {
-                            translation: Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF, 1.),
-                            scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
-                            ..default()
-                        },
+                velocity: Velocity(
+                    Vec2::new(0., 0.)
+                ),
+                offset: Offset(0.),
+                collider: Collider, 
+                pipe: Pipe,
+            },
+        ));
+
+        // Bottom Pipes
+        commands.spawn((
+            PipeBundle {
+                mesh_bundle: MaterialMesh2dBundle {
+                    mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
+                    material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                    transform: Transform {
+                        translation: Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF, 1.),
+                        scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
                         ..default()
                     },
-
-                    velocity: Velocity(
-                        Vec2::new(0., 0.)
-                    ),
-                    offset: Offset(-PIPE_DIFF),
-                    collider: Collider, 
-                    pipe: Pipe,
+                    ..default()
                 },
-            ));
 
-        commands
-            .spawn((
-                PipePointBundle {
-                    mesh_bundle: MaterialMesh2dBundle {
-                        mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                        material: materials.add(ColorMaterial::from(POINT_MARKER)),
-                        transform: Transform {
-                            translation: Vec3::new(i as f32 * 500. + PIPE_X_SIZE / 2., pipe_height - PIPE_DIFF / 2., 1.),
-                            scale: Vec3::new(1., 1100. - PIPE_Y_SIZE, 0.),
-                            ..default()
-                        },
+                velocity: Velocity(
+                    Vec2::new(0., 0.)
+                ),
+                offset: Offset(-PIPE_DIFF),
+                collider: Collider, 
+                pipe: Pipe,
+            },
+        ));
+
+        // Point Markers
+        commands.spawn((
+            PipePointBundle {
+                mesh_bundle: MaterialMesh2dBundle {
+                    mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
+                    material: materials.add(ColorMaterial::from(POINT_MARKER)),
+                    transform: Transform {
+                        translation: Vec3::new(i as f32 * 500. + PIPE_X_SIZE / 2., pipe_height - PIPE_DIFF / 2., 1.),
+                        scale: Vec3::new(1., 1100. - PIPE_Y_SIZE, 0.),
                         ..default()
                     },
-
-                    velocity: Velocity(
-                        Vec2::new(0., 0.)
-                    ),
-
-                    collider: Collider,
-                    offset: Offset(-PIPE_DIFF / 2.),
-                    point_marker: PointMarker,
+                    ..default()
                 },
-            ));
+
+                velocity: Velocity(
+                    Vec2::new(0., 0.)
+                ),
+
+                collider: Collider,
+                offset: Offset(-PIPE_DIFF / 2.),
+                point_marker: PointMarker,
+            },
+        ));
     }
 
 }
 
+// Components, Resources, Events
 #[derive(Bundle)]
 struct PipeBundle {
     mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,

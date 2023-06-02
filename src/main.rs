@@ -14,7 +14,6 @@ const GRAVITY: f32 = -40.;
 const TEXT_COLOR: Color = Color::rgb(0.9, 0.9, 1.0);
 const BACKGROUND_COLOR: Color = Color::rgb(0.2, 0.5, 0.9);
 
-/// Main: Adding systems, resources, schedules, etc to game App
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -47,8 +46,7 @@ fn main() {
         .run();
 }
 
-/// Setup: Adding entities to the game world
-
+// Components & Resources used by more then one module outside main
 #[derive(Component, Deref, DerefMut)]
 pub struct Velocity(Vec2);
 
