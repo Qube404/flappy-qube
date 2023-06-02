@@ -10,8 +10,8 @@ use super::{
 };
 
 // Constants
-const PIPE_X_SIZE: f32 = 100.;
-const PIPE_Y_SIZE: f32 = 800.;
+pub const PIPE_X_SIZE: f32 = 100.;
+pub const PIPE_Y_SIZE: f32 = 800.;
 const PIPE_DIFF: f32 = 1100.;
 const PIPE_AMOUNT: i32 = 6;
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
@@ -129,7 +129,7 @@ pub struct Pipe;
 pub struct PointMarker;
 
 #[derive(Component)]
-pub struct Offset(f32);
+pub struct Offset(pub f32);
 
 #[derive(Component)]
 pub struct BeenAdded(pub bool);
@@ -152,10 +152,6 @@ pub fn move_pipes(
 
         let x_pos = transform.translation.x;
 
-        // Notes for tommorow: Problem is with the pipe point hitting
-        // later then the pipes because its position is further
-        // then the pipes and thus is called at a different time with
-        // a different random number.
         if x_pos <= -1000.  {
             transform.translation.x = 2000.;
             transform.translation.y = pipe_height + offset.0;

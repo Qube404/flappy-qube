@@ -1,41 +1,49 @@
 use bevy::prelude::*;
 
-// Constants
-const GAME_OVER_TEXT_SIZE: f32 = 56.;
+use super::{
+    Collider,
+    scoreboard::Scoreboard,
+    bird::Bird,
+    pipes::Offset,
+    pipes::PointMarker,
+    pipes::BeenAdded,
+    pipes::PIPE_X_SIZE,
+};
 
-// Will eventually end the game when a collision event is
-// detected
+use rand::prelude::*;
+
+// Restarts the game when a collision event is recieved
 pub fn game_over(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    mut bird_query: Query<&mut Transform, With<Bird>>,
+    mut pipes_query: Query<(&mut Transform, &Offset, Option<&PointMarker>, Option<&mut BeenAdded>), With<Collider>>,
+    mut score: ResMut<Scoreboard>,
     collision_event: EventReader<super::bird::BirdCollisionEvent>,
-    window: Query<&Window>,
 ) {
     if !collision_event.is_empty() {
-        let window = window.single();
-        let text_x_position = (window.width() - GAME_OVER_TEXT_SIZE) / 2.;
-        let text_y_position = (window.height() - GAME_OVER_TEXT_SIZE) / 2.;
+        score.score = 0;
 
-        commands.spawn(
-            TextBundle::from_section(
-                "Game Over",
-                TextStyle {
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                    font_size: GAME_OVER_TEXT_SIZE,
-                    color: super::TEXT_COLOR,
-                }
-            )
-        .with_text_alignment(TextAlignment::Center)
-        .with_style(
-            Style {
-                position: UiRect {
-                    top: Val::Px(text_y_position), 
-                    left: Val::Px(text_x_position),
-                    ..default()
+        let mut bird_transform = bird_query.single_mut();
+        bird_transform.translation.y = 0.;
 
-                },
-                ..default()
+        let pipe_height = thread_rng()
+            .gen_range(300..=800) as f32;
+
+        let mut i = 0;
+        for (mut pipe_transform, offset, point_marker, been_added) in &mut pipes_query {
+            let x_pos = pipe_transform.translation.x;
+
+            if x_pos <= -1000.  {
+                pipe_transform.translation.x = i as f32 * 500.;
+                pipe_transform.translation.y = pipe_height + offset.0;
+            } else if x_pos <= -1000. + PIPE_X_SIZE / 2. && point_marker.is_some() {
+                pipe_transform.translation.x = i as f32 * 500. + PIPE_X_SIZE / 2.;
+                pipe_transform.translation.y = pipe_height + offset.0;
+                been_added
+                    .expect("Should be Some<T>")
+                    .0 = false;
             }
-        ));
+
+            i += 1;
+        } 
     }
 }

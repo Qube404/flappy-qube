@@ -57,5 +57,4 @@ pub struct Collider;
 enum AppState {
     MainMenu,
     InGame,
-    GameOver,
 }
