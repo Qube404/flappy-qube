@@ -1,30 +1,35 @@
 use bevy::prelude::*;
 
 // Constants
-const SCOREBOARD_TOP_PADDING: Val = Val::Px(500.);
-const SCOREBOARD_LEFT_PADDING: Val = Val::Px(500.);
+const SCOREBOARD_TEXT_SIZE: f32 = 56.;
 
 // Initial Setup
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    window: Query<&Window>,
 ) {
+    let window = window.single();
+    let text_x_position = (window.width() - SCOREBOARD_TEXT_SIZE) / 2.;
+    let text_y_position = window.height() / 10.;
+
     commands.spawn((
         TextBundle::from_section(
             "0",
             TextStyle {
                 font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                font_size: 56.0,
+                font_size: SCOREBOARD_TEXT_SIZE,
                 color: super::TEXT_COLOR,
             }
         )
+        .with_text_alignment(TextAlignment::Center)
         .with_style(
             Style {
-                position_type: PositionType::Absolute,
                 position: UiRect {
-                    top: SCOREBOARD_TOP_PADDING,
-                    left: SCOREBOARD_LEFT_PADDING,
+                    top: Val::Px(text_y_position), 
+                    left: Val::Px(text_x_position),
                     ..default()
+
                 },
                 ..default()
             }

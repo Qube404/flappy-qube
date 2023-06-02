@@ -19,6 +19,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .insert_resource(scoreboard::Scoreboard { score: 0 })
         .insert_resource(ClearColor(BACKGROUND_COLOR))
+        .insert_resource(game_over::GameOver(false))
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
         .add_startup_system(scoreboard::setup)
