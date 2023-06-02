@@ -95,6 +95,7 @@ pub fn setup(
                 collider: Collider,
                 offset: Offset(-PIPE_DIFF / 2.),
                 point_marker: PointMarker,
+                been_added: BeenAdded(false),
             },
         ));
     }
@@ -118,6 +119,7 @@ struct PipePointBundle {
     collider: Collider,
     offset: Offset,
     point_marker: PointMarker,
+    been_added: BeenAdded,
 }
 
 #[derive(Component)]
@@ -129,6 +131,9 @@ pub struct PointMarker;
 #[derive(Component)]
 pub struct Offset(f32);
 
+#[derive(Component)]
+pub struct BeenAdded(pub bool);
+
 // Pipe Movement: Add a constant value to pipes velocity.
 // It's better to isolate this to a system rather then hardcode
 // the value in the entity so that a more complex movement
@@ -137,12 +142,12 @@ pub struct Offset(f32);
 // Why the fuck does a copied value of a randomly generated
 // number change throughout different iterations of a loop?!?!
 pub fn move_pipes(
-    mut query_pipes: Query<(&mut Transform, &mut Velocity, &Offset, Option<&PointMarker>), With<Collider>>,
+    mut query_pipes: Query<(&mut Transform, &mut Velocity, &Offset, Option<&PointMarker>, Option<&mut BeenAdded>), With<Collider>>,
 ) {
     let pipe_height = thread_rng()
         .gen_range(300..=800) as f32;
 
-    for (mut transform, mut velocity, offset, point_marker) in &mut query_pipes {
+    for (mut transform, mut velocity, offset, point_marker, been_added) in &mut query_pipes {
         velocity.x = -300. * TIME_STEP;
 
         let x_pos = transform.translation.x;
@@ -157,6 +162,9 @@ pub fn move_pipes(
         } else if x_pos <= -1000. + PIPE_X_SIZE / 2. && point_marker.is_some() {
             transform.translation.x = 2000. + PIPE_X_SIZE / 2.;
             transform.translation.y = pipe_height + offset.0;
+            been_added
+                .expect("Should be Some<T>")
+                .0 = false;
         }
     }
 }

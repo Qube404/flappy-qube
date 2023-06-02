@@ -11,6 +11,8 @@ use super::{
     Collider,
     scoreboard::Scoreboard,
     pipes::Pipe,
+    pipes::PointMarker,
+    pipes::BeenAdded,
 };
 
 // Constants
@@ -102,7 +104,6 @@ pub fn bird_pipe_collisions(
     mut bird_query: Query<&Transform, With<Bird>>, 
     collider_query: Query<&Transform, (With<Collider>, With<Pipe>)>,
     mut collision_events: EventWriter<BirdCollisionEvent>,
-    mut scoreboard: ResMut<Scoreboard>,
 ) {
     let bird_transform = bird_query.single_mut();
 
@@ -120,11 +121,29 @@ pub fn bird_pipe_collisions(
         if collision.is_some() {
             collision_events.send_default();
         }
+    }
+}
 
-        // Checks if bird is past pipe and adds to score if it is
-        if bird_transform.translation.x > pipe_transform.translation.x {
+// Check for collisions with point markers
+pub fn bird_point_collisions(
+    mut bird_query: Query<&Transform, With<Bird>>, 
+    mut point_query: Query<(&Transform, &mut BeenAdded), (With<Collider>, With<PointMarker>)>,
+    mut scoreboard: ResMut<Scoreboard>,
+) {
+    let bird_transform = bird_query.single_mut();
+
+    for (point_transform, mut been_added) in &mut point_query {
+        let collision = collide(
+            bird_transform.translation,
+            bird_transform.scale.truncate(),
+            point_transform.translation,
+            point_transform.scale.truncate(),
+        );
+
+        if collision.is_some() && been_added.0 == false {
             scoreboard.score += 1;
-        } 
+            been_added.0 = true;
+        }
     }
 }
 

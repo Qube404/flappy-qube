@@ -19,7 +19,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .insert_resource(scoreboard::Scoreboard { score: 0 })
         .insert_resource(ClearColor(BACKGROUND_COLOR))
-        .insert_resource(game_over::GameOver(false))
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
         .add_startup_system(scoreboard::setup)
@@ -36,11 +35,11 @@ fn main() {
                 pipes::apply_pipes_velocity,
 
                 bird::bird_pipe_collisions,
+                bird::bird_point_collisions,
 
                 scoreboard::update_scoreboard,
 
                 game_over::game_over,
-
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -54,3 +53,9 @@ pub struct Velocity(Vec2);
 #[derive(Component)]
 pub struct Collider;
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+enum AppState {
+    MainMenu,
+    InGame,
+    GameOver,
+}
