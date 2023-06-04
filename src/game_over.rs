@@ -53,13 +53,3 @@ pub fn game_over(
         } 
     }
 }
-
-fn game_over_test(
-    mut pipes_query: Query<(&mut Transform, &Offset, &StartingPosition), (With<Collider>, Without<Bird>)>,
-    pipe_entities: Query<Entity, With<Pipe>>,
-    point_entities: Query<Entity, With<PointMarker>>,
-) {
-    for (mut transform, offset, starting_position) in &mut pipes_query {
-        
-    }
-}
