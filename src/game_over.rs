@@ -8,6 +8,7 @@ use super::{
     pipes::PointMarker,
     pipes::BeenAdded,
     pipes::StartingPosition,
+    pipes::Pipe,
     pipes::PIPE_X_SIZE,
 };
 
@@ -50,5 +51,15 @@ pub fn game_over(
                 pipe_transform.translation.x = starting_position.0.x;
             }
         } 
+    }
+}
+
+fn game_over_test(
+    mut pipes_query: Query<(&mut Transform, &Offset, &StartingPosition), (With<Collider>, Without<Bird>)>,
+    pipe_entities: Query<Entity, With<Pipe>>,
+    point_entities: Query<Entity, With<PointMarker>>,
+) {
+    for (mut transform, offset, starting_position) in &mut pipes_query {
+        
     }
 }
