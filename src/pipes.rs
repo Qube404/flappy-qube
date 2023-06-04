@@ -15,7 +15,7 @@ pub const PIPE_Y_SIZE: f32 = 800.;
 const PIPE_DIFF: f32 = 1100.;
 const PIPE_AMOUNT: i32 = 6;
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
-const POINT_MARKER: Color = Color::rgba(0., 0., 0., 0.);
+const POINT_MARKER: Color = Color::rgba(0., 0., 0., 1.);
 
 // Initial Setup
 pub fn setup(
@@ -48,6 +48,9 @@ pub fn setup(
                 offset: Offset(0.),
                 collider: Collider, 
                 pipe: Pipe,
+                starting_position: StartingPosition(
+                    Vec3::new(i as f32 * 500., pipe_height, 1.),
+                )
             },
         ));
 
@@ -71,6 +74,9 @@ pub fn setup(
                 offset: Offset(-PIPE_DIFF),
                 collider: Collider, 
                 pipe: Pipe,
+                starting_position: StartingPosition(
+                    Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF, 1.),
+                )
             },
         ));
 
@@ -96,6 +102,9 @@ pub fn setup(
                 offset: Offset(-PIPE_DIFF / 2.),
                 point_marker: PointMarker,
                 been_added: BeenAdded(false),
+                starting_position: StartingPosition(
+                    Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF / 2., 1.),
+                )
             },
         ));
     }
@@ -110,6 +119,7 @@ struct PipeBundle {
     collider: Collider,
     offset: Offset,
     pipe: Pipe,
+    starting_position: StartingPosition,
 }
 
 #[derive(Bundle)]
@@ -120,6 +130,7 @@ struct PipePointBundle {
     offset: Offset,
     point_marker: PointMarker,
     been_added: BeenAdded,
+    starting_position: StartingPosition,
 }
 
 #[derive(Component)]
@@ -133,6 +144,9 @@ pub struct Offset(pub f32);
 
 #[derive(Component)]
 pub struct BeenAdded(pub bool);
+
+#[derive(Component)]
+pub struct StartingPosition(pub Vec3);
 
 // Pipe Movement: Add a constant value to pipes velocity.
 // It's better to isolate this to a system rather then hardcode
