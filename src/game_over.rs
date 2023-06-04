@@ -20,7 +20,8 @@ pub fn game_over(
     mut score: ResMut<Scoreboard>,
     collision_event: EventReader<super::bird::BirdCollisionEvent>,
 ) {
-    let pipe_height = thread_rng()
+    let mut rand = thread_rng();
+    let mut pipe_height = rand
         .gen_range(300..=800) as f32;
 
     if !collision_event.is_empty() {
@@ -37,6 +38,14 @@ pub fn game_over(
                 been_added
                     .expect("Should be Some<T>")
                     .0 = false;
+
+                // Resetting random height after resetting a point marker because the order
+                // bevy resets items is pipe, pipe, point and since I want the random
+                // number to change every pipe set (pipe set is a top pipe, bottom pipe and
+                // a point marker) then resetting the random number at the end of a point
+                // marker reset should give each pipe set their own unique random height.
+                pipe_height = rand
+                    .gen_range(300..=800) as f32;
             } else {
                 pipe_transform.translation.x = starting_position.0.x;
             }
