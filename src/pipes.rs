@@ -58,7 +58,7 @@ pub fn setup(
                     Vec3::new(i as f32 * PIPE_GAP_X, pipe_height, 1.),
                 )
             },
-            NumberOf(i),
+            NumberOf(i as usize),
         ));
 
         // Bottom Pipes
@@ -83,7 +83,7 @@ pub fn setup(
                     Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y, 1.),
                 )
             },
-            NumberOf(i),
+            NumberOf(i as usize),
         ));
 
         // Point Markers
@@ -113,7 +113,7 @@ pub fn setup(
                     Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y / 2., 1.),
                 )
             },
-            NumberOf(i),
+            NumberOf(i as usize),
         ));
     }
 

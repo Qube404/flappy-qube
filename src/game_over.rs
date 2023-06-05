@@ -34,7 +34,7 @@ pub fn game_over(
     let mut rand = thread_rng();
     let mut random_heights: Vec<f32> = Vec::new();
 
-    for pipe_height in 1..=PIPE_AMOUNT {
+    for _ in 1..=PIPE_AMOUNT {
         random_heights
             .push(rand.gen_range(PIPE_HEIGHT_RANGE) as f32);
     }
@@ -54,8 +54,8 @@ pub fn game_over(
             been_added
         ) in &mut pipes_query {
             pipe_transform.translation.y = random_heights
-                    .get(number_of.0)
-                    .expect("Should be a number.") + offset.0;
+                    .get(number_of.0 - 1)
+                    .expect("Should be a valid index in random_heights") + offset.0;
 
             if point_marker.is_some() {
                 pipe_transform.translation.x = starting_position.0.x + PIPE_X_SIZE / 2.;
