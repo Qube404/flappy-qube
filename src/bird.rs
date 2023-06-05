@@ -17,8 +17,13 @@ use super::{
 
 // Constants
 const BIRD_SIZE: f32 = 30.;
+const BIRD_SCALE: Vec3 = Vec3::new(BIRD_SIZE, BIRD_SIZE, 1.);
 const BIRD_JUMP: f32 = 800.;
+const BIRD_STARTING_POSITION: Vec3 = Vec3::new(0., 0., 2.);
 const BIRD_COLOR: Color = Color::rgb(0.8, 0.8, 0.2);
+
+const GRAVITY_CAP: f32 = -70.;
+const SPEED_CAP: Vec2 = Vec2::new(0., 1500. * TIME_STEP);
 
 // Initial Setup
 pub fn setup(
@@ -31,21 +36,17 @@ pub fn setup(
             mesh: meshes.add(shape::Circle::new(1.).into()).into(),
             material: materials.add(ColorMaterial::from(BIRD_COLOR)),
             transform: Transform {
-                translation: Vec3::new(0., 0., 2.),
-                scale: Vec3::new(BIRD_SIZE, BIRD_SIZE, 1.),
+                translation: BIRD_STARTING_POSITION,
+                scale: BIRD_SCALE,
                 ..default()
             },
             ..default()
         },
 
-        super::Velocity(
-            Vec2::new(0., 0.)
-        ),
+        super::Velocity(Vec2::new(0., 0.)),
 
-        GravityCap(-70.),
-        SpeedCap(
-            Vec2::new(0., 1500. * TIME_STEP)
-        ),
+        GravityCap(GRAVITY_CAP),
+        SpeedCap(SPEED_CAP),
 
         Bird,
     ));
@@ -140,9 +141,9 @@ pub fn bird_point_collisions(
             point_transform.scale.truncate(),
         );
 
-        if collision.is_some() && been_added.0 == false {
+        if collision.is_some() && **been_added == false {
             scoreboard.score += 1;
-            been_added.0 = true;
+            **been_added = true;
         }
     }
 }

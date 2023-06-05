@@ -3,6 +3,8 @@ use bevy::sprite::MaterialMesh2dBundle;
 
 use rand::prelude::*;
 
+use std::ops::RangeInclusive;
+
 use super::{
     Velocity, 
     TIME_STEP,
@@ -12,10 +14,12 @@ use super::{
 // Constants
 pub const PIPE_X_SIZE: f32 = 100.;
 pub const PIPE_Y_SIZE: f32 = 800.;
-const PIPE_DIFF: f32 = 1100.;
 const PIPE_AMOUNT: i32 = 6;
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
 const POINT_MARKER: Color = Color::rgba(0., 0., 0., 1.);
+const PIPE_GAP_X: f32 = 500.;
+const PIPE_GAP_Y: f32 = 1100.;
+const PIPE_HEIGHT_RANGE: RangeInclusive<i32> = 300..=800;
 
 // Initial Setup
 pub fn setup(
@@ -26,7 +30,8 @@ pub fn setup(
     // Spawns three entities per loop iteration. First is the top pipe,
     // second is the bottom pipe and third is the point marker.
     for i in 1..=PIPE_AMOUNT {
-        let pipe_height: f32 = thread_rng().gen_range(300..=800) as f32; 
+        let pipe_height: f32 = thread_rng()
+            .gen_range(PIPE_HEIGHT_RANGE) as f32; 
 
         // Top Pipes
         commands.spawn((
@@ -35,21 +40,19 @@ pub fn setup(
                     mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
                     material: materials.add(ColorMaterial::from(PIPE_COLOR)),
                     transform: Transform {
-                        translation: Vec3::new(i as f32 * 500., pipe_height, 1.),
+                        translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height, 1.),
                         scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
                         ..default()
                     },
                     ..default()
                 },
 
-                velocity: Velocity(
-                    Vec2::new(0., 0.)
-                ),
+                velocity: Velocity(Vec2::new(0., 0.)),
                 offset: Offset(0.),
                 collider: Collider, 
                 pipe: Pipe,
                 starting_position: StartingPosition(
-                    Vec3::new(i as f32 * 500., pipe_height, 1.),
+                    Vec3::new(i as f32 * PIPE_GAP_X, pipe_height, 1.),
                 )
             },
         ));
@@ -61,21 +64,19 @@ pub fn setup(
                     mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
                     material: materials.add(ColorMaterial::from(PIPE_COLOR)),
                     transform: Transform {
-                        translation: Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF, 1.),
+                        translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y, 1.),
                         scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
                         ..default()
                     },
                     ..default()
                 },
 
-                velocity: Velocity(
-                    Vec2::new(0., 0.)
-                ),
-                offset: Offset(-PIPE_DIFF),
+                velocity: Velocity(Vec2::new(0., 0.)),
+                offset: Offset(-PIPE_GAP_Y),
                 collider: Collider, 
                 pipe: Pipe,
                 starting_position: StartingPosition(
-                    Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF, 1.),
+                    Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y, 1.),
                 )
             },
         ));
@@ -87,23 +88,24 @@ pub fn setup(
                     mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
                     material: materials.add(ColorMaterial::from(POINT_MARKER)),
                     transform: Transform {
-                        translation: Vec3::new(i as f32 * 500. + PIPE_X_SIZE / 2., pipe_height - PIPE_DIFF / 2., 1.),
-                        scale: Vec3::new(1., 1100. - PIPE_Y_SIZE, 0.),
+                        translation: Vec3::new(
+                            i as f32 * PIPE_GAP_X + PIPE_X_SIZE / 2.,
+                            pipe_height - PIPE_GAP_Y / 2.,
+                            1.
+                        ),
+                        scale: Vec3::new(1., PIPE_GAP_Y - PIPE_Y_SIZE, 0.),
                         ..default()
                     },
                     ..default()
                 },
 
-                velocity: Velocity(
-                    Vec2::new(0., 0.)
-                ),
-
+                velocity: Velocity(Vec2::new(0., 0.)),
                 collider: Collider,
-                offset: Offset(-PIPE_DIFF / 2.),
+                offset: Offset(-PIPE_GAP_Y / 2.),
                 point_marker: PointMarker,
                 been_added: BeenAdded(false),
                 starting_position: StartingPosition(
-                    Vec3::new(i as f32 * 500., pipe_height - PIPE_DIFF / 2., 1.),
+                    Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y / 2., 1.),
                 )
             },
         ));
@@ -142,24 +144,28 @@ pub struct PointMarker;
 #[derive(Component)]
 pub struct Offset(pub f32);
 
-#[derive(Component)]
+#[derive(Component, Deref, DerefMut)]
 pub struct BeenAdded(pub bool);
 
 #[derive(Component)]
 pub struct StartingPosition(pub Vec3);
 
 // Pipe Movement: Add a constant value to pipes velocity.
-// It's better to isolate this to a system rather then hardcode
-// the value in the entity so that a more complex movement
-// system can be added later.
-//
-// Why the fuck does a copied value of a randomly generated
-// number change throughout different iterations of a loop?!?!
+// Also moves the pipes to the right edge of the screen as
+// they move off the left side.
 pub fn move_pipes(
-    mut query_pipes: Query<(&mut Transform, &mut Velocity, &Offset, Option<&PointMarker>, Option<&mut BeenAdded>), With<Collider>>,
+    mut query_pipes: Query<(
+        &mut Transform, 
+        &mut Velocity, 
+        &Offset, 
+        Option<&PointMarker>, 
+        Option<&mut BeenAdded
+    >), 
+        With<Collider>
+    >,
 ) {
     let pipe_height = thread_rng()
-        .gen_range(300..=800) as f32;
+        .gen_range(PIPE_HEIGHT_RANGE) as f32;
 
     for (mut transform, mut velocity, offset, point_marker, been_added) in &mut query_pipes {
         velocity.x = -300. * TIME_STEP;

@@ -34,6 +34,7 @@ pub fn setup(
                 ..default()
             }
         ),
+
         ScoreboardText,
     ));
 }
