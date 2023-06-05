@@ -17,6 +17,7 @@ const BACKGROUND_COLOR: Color = Color::rgb(0.2, 0.5, 0.9);
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_state::<AppState>()
         .insert_resource(scoreboard::Scoreboard { score: 0 })
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .add_startup_system(bird::setup)
@@ -53,8 +54,9 @@ pub struct Velocity(Vec2);
 #[derive(Component)]
 pub struct Collider;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, Default, PartialEq, Hash, States)]
 enum AppState {
+    #[default]
     MainMenu,
     InGame,
 }
