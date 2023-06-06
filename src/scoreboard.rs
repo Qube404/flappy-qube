@@ -32,7 +32,7 @@ pub fn setup(
             parent.spawn((TextBundle::from_section(
                 "0",
                 TextStyle {
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                    font: asset_server.load("fonts/slkscrb.ttf"),
                     font_size: SCOREBOARD_TEXT_SIZE,
                     color: super::TEXT_COLOR,
                 }

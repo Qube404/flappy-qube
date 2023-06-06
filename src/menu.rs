@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 // Constants
-const MENU_TEXT_SIZE: f32 = 56.;
+const MENU_TEXT_SIZE: f32 = 34.;
 
 // Initial Setup
 pub fn setup(
@@ -33,7 +33,7 @@ pub fn setup(
             parent.spawn(TextBundle::from_section(
                 "Press Space or Mouse1 to start!",
                 TextStyle {
-                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                    font: asset_server.load("fonts/slkscrb.ttf"),
                     font_size: MENU_TEXT_SIZE,
                     color: super::TEXT_COLOR,
                 }
