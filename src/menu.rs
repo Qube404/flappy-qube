@@ -40,4 +40,15 @@ pub fn setup(
 }
 
 #[derive(Component)]
-struct MenuText;
+pub struct MenuText;
+
+pub fn remove_menu_text(
+    mut commands: Commands,
+    mut query: Query<Entity, With<MenuText>>
+) {
+    let menu_text = query.single_mut();
+
+    commands
+        .entity(menu_text)
+        .despawn();
+}

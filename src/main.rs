@@ -30,6 +30,9 @@ fn main() {
         .add_startup_system(menu::setup)
 
         .add_event::<bird::BirdCollisionEvent>()
+
+        .add_system(bird::game_start.in_set(OnUpdate(AppState::MainMenu)))
+        .add_system(menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
         .add_systems(
             (
                 bird::apply_bird_velocity,
@@ -64,7 +67,7 @@ pub struct Velocity(Vec2);
 pub struct Collider;
 
 #[derive(Debug, Clone, Copy, Eq, Default, PartialEq, Hash, States)]
-enum AppState {
+pub enum AppState {
     #[default]
     MainMenu,
     InGame,

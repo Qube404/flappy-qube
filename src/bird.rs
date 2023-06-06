@@ -9,6 +9,7 @@ use super::{
     TIME_STEP,
     GRAVITY,
     Collider,
+    AppState,
     scoreboard::Scoreboard,
     pipes::Pipe,
     pipes::PointMarker,
@@ -85,7 +86,6 @@ pub fn move_bird(
             bird_velocity.y = BIRD_JUMP * TIME_STEP;
         }
     }
-
 }
 
 // Apply gravity to player's velocity
@@ -155,5 +155,28 @@ pub fn apply_bird_velocity(
     for (mut transform, velocity) in &mut query {
         transform.translation.x += velocity.x;
         transform.translation.y += velocity.y;
+    }
+}
+
+// Starts game
+pub fn game_start(
+    mut query: Query<(&mut Velocity, &SpeedCap), With<Bird>>,
+    mut next_state: ResMut<NextState<AppState>>,
+    keyboard_input: Res<Input<KeyCode>>,
+    mouse_input: Res<Input<MouseButton>>,
+) {
+    let (mut bird_velocity, speed_cap) = query.single_mut();
+    
+    // This does the same thing as the normal movement system
+    // with the added feature of setting the game state to 
+    // AppState::InGame.
+    if 
+        keyboard_input.just_pressed(KeyCode::Space) ||
+        mouse_input.just_pressed(MouseButton::Left)
+    {
+        if bird_velocity.y < speed_cap.y {
+            bird_velocity.y = BIRD_JUMP * TIME_STEP;
+            next_state.set(AppState::InGame);
+        }
     }
 }
