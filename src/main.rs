@@ -7,6 +7,7 @@ mod pipes;
 mod scoreboard;
 mod camera;
 mod game_over;
+mod menu;
 
 /// Constants
 const TIME_STEP: f32 = 1. / 60.;
@@ -18,22 +19,30 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_state::<AppState>()
+        
         .insert_resource(scoreboard::Scoreboard { score: 0 })
         .insert_resource(ClearColor(BACKGROUND_COLOR))
+
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
         .add_startup_system(scoreboard::setup)
         .add_startup_system(camera::setup)
+        .add_startup_system(menu::setup)
+
         .add_event::<bird::BirdCollisionEvent>()
+        .add_systems(
+            (
+                bird::apply_bird_velocity,
+                pipes::apply_pipes_velocity,
+            )
+            .in_schedule(CoreSchedule::FixedUpdate),
+        )
         .add_systems(
             (
                 bird::apply_bird_gravity,
 
                 bird::move_bird,
                 pipes::move_pipes,
-
-                bird::apply_bird_velocity,
-                pipes::apply_pipes_velocity,
 
                 bird::bird_pipe_collisions,
                 bird::bird_point_collisions,
@@ -42,7 +51,7 @@ fn main() {
 
                 game_over::game_over,
             )
-            .in_schedule(CoreSchedule::FixedUpdate),
+            .in_set(OnUpdate(AppState::InGame))
         )
         .run();
 }
