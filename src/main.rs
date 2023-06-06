@@ -23,13 +23,14 @@ fn main() {
         .insert_resource(scoreboard::Scoreboard { score: 0 })
         .insert_resource(ClearColor(BACKGROUND_COLOR))
 
+        .add_event::<bird::BirdCollisionEvent>()
+
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
-        .add_startup_system(scoreboard::setup)
         .add_startup_system(camera::setup)
         .add_startup_system(menu::setup)
 
-        .add_event::<bird::BirdCollisionEvent>()
+        .add_system(scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
 
         .add_system(bird::game_start.in_set(OnUpdate(AppState::MainMenu)))
         .add_system(menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))

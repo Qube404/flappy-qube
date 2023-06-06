@@ -7,36 +7,40 @@ const SCOREBOARD_TEXT_SIZE: f32 = 56.;
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    window: Query<&Window>,
 ) {
-    let window = window.single();
-    let text_x_position = (window.width() - SCOREBOARD_TEXT_SIZE) / 2.;
-    let text_y_position = window.height() / 10.;
-
-    commands.spawn((
-        TextBundle::from_section(
-            "0",
-            TextStyle {
-                font: asset_server.load("fonts/FiraMono-Medium.ttf"),
-                font_size: SCOREBOARD_TEXT_SIZE,
-                color: super::TEXT_COLOR,
-            }
-        )
-        .with_text_alignment(TextAlignment::Center)
-        .with_style(
-            Style {
-                position: UiRect {
-                    top: Val::Px(text_y_position), 
-                    left: Val::Px(text_x_position),
+    commands.spawn((NodeBundle {
+        style: Style {
+            flex_basis: Val::Percent(100.),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Start,
+            ..default()
+        },
+        ..default()
+    },
+    ))
+    .with_children(|parent| {
+        parent.spawn(NodeBundle {
+            style: Style {
+                padding: UiRect {
+                    top: Val::Percent(10.),
                     ..default()
-
                 },
                 ..default()
-            }
-        ),
-
-        ScoreboardText,
-    ));
+            },
+            ..default()
+        }).with_children(|parent| {
+            parent.spawn((TextBundle::from_section(
+                "0",
+                TextStyle {
+                    font: asset_server.load("fonts/FiraMono-Medium.ttf"),
+                    font_size: SCOREBOARD_TEXT_SIZE,
+                    color: super::TEXT_COLOR,
+                }
+            ),
+            ScoreboardText,
+            ));
+        });
+    });
 }
 
 // Components, Resources, Events
