@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::sprite::{
     MaterialMesh2dBundle,
+    Mesh2dHandle,
     collide_aabb::collide,
 };
 
@@ -17,7 +18,7 @@ use super::{
 };
 
 // Constants
-const BIRD_SIZE: f32 = 30.;
+const BIRD_SIZE: f32 = 1.;
 const BIRD_SCALE: Vec3 = Vec3::new(BIRD_SIZE, BIRD_SIZE, 1.);
 const BIRD_JUMP: f32 = 800.;
 const BIRD_STARTING_POSITION: Vec3 = Vec3::new(0., 0., 2.);
@@ -29,13 +30,13 @@ const SPEED_CAP: Vec2 = Vec2::new(0., 1500. * TIME_STEP);
 // Initial Setup
 pub fn setup(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
+    let bird_handle = asset_server.load("sprites/FlappyQube.png");
+
     commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Circle::new(1.).into()).into(),
-            material: materials.add(ColorMaterial::from(BIRD_COLOR)),
+        SpriteBundle {
+            texture: bird_handle,
             transform: Transform {
                 translation: BIRD_STARTING_POSITION,
                 scale: BIRD_SCALE,
