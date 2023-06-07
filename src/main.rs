@@ -17,7 +17,11 @@ const BACKGROUND_COLOR: Color = Color::rgb(0.2, 0.5, 0.9);
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(
+            // Stops pixel art from being blurry.
+            ImagePlugin::default_nearest()
+        ))
+
         .add_state::<AppState>()
         
         .insert_resource(scoreboard::Scoreboard { score: 0 })

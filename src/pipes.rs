@@ -29,7 +29,10 @@ pub fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
+    let pipe_handle = asset_server.load("sprites/Pipe.png");
+
     // Spawns three entities per loop iteration. First is the top pipe,
     // second is the bottom pipe and third is the point marker.
     for i in 1..=PIPE_AMOUNT {
@@ -39,9 +42,8 @@ pub fn setup(
         // Top Pipes
         commands.spawn((
             PipeBundle {
-                mesh_bundle: MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                    material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                sprite_bundle: SpriteBundle {
+                    texture: pipe_handle.clone(),
                     transform: Transform {
                         translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height, 1.),
                         scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
@@ -64,9 +66,8 @@ pub fn setup(
         // Bottom Pipes
         commands.spawn((
             PipeBundle {
-                mesh_bundle: MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Box::new(1., 1., 1.).into()).into(),
-                    material: materials.add(ColorMaterial::from(PIPE_COLOR)),
+                sprite_bundle: SpriteBundle {
+                    texture: pipe_handle.clone(),
                     transform: Transform {
                         translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y, 1.),
                         scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
@@ -122,7 +123,7 @@ pub fn setup(
 // Components, Resources, Events
 #[derive(Bundle)]
 struct PipeBundle {
-    mesh_bundle: MaterialMesh2dBundle<ColorMaterial>,
+    sprite_bundle: SpriteBundle,
     velocity: Velocity,
     collider: Collider,
     offset: Offset,
