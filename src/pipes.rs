@@ -20,7 +20,7 @@ pub const PIPE_AMOUNT: i32 = 6;
 pub const PIPE_HEIGHT_RANGE: RangeInclusive<i32> = 300..=800;
 
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
-const POINT_MARKER: Color = Color::rgba(0., 0., 0., 0.);
+const POINT_MARKER: Color = Color::rgba(0., 0., 0., 1.);
 const PIPE_GAP_X: f32 = 500.;
 const PIPE_GAP_Y: f32 = 1100.;
 
@@ -46,7 +46,7 @@ pub fn setup(
                     texture: pipe_handle.clone(),
                     transform: Transform {
                         translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height, 1.),
-                        scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
+                        scale: Vec3::new(5., 10., 0.),
                         ..default()
                     },
                     ..default()
@@ -70,7 +70,8 @@ pub fn setup(
                     texture: pipe_handle.clone(),
                     transform: Transform {
                         translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y, 1.),
-                        scale: Vec3::new(PIPE_X_SIZE, PIPE_Y_SIZE, 0.),
+                        scale: Vec3::new(5., 10., 0.),
+                        rotation: Quat::from_rotation_x(f32::to_radians(180.)),
                         ..default()
                     },
                     ..default()
