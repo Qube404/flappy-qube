@@ -20,7 +20,7 @@ pub const PIPE_AMOUNT: i32 = 6;
 pub const PIPE_HEIGHT_RANGE: RangeInclusive<i32> = 300..=800;
 
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
-const POINT_MARKER: Color = Color::rgba(0., 0., 0., 1.);
+const POINT_MARKER: Color = Color::rgba(0., 0., 0., 0.);
 const PIPE_GAP_X: f32 = 500.;
 const PIPE_GAP_Y: f32 = PIPE_Y_SIZE + 250.;
 
