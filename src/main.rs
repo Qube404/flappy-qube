@@ -32,12 +32,14 @@ fn main() {
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
         .add_startup_system(camera::setup)
-        .add_startup_system(menu::setup)
 
         .add_system(scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
+        .add_system(scoreboard::remove_scoreboard_text.in_schedule(OnExit(AppState::InGame)))
+
+        .add_system(menu::setup.in_schedule(OnEnter(AppState::MainMenu)))
+        .add_system(menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
 
         .add_system(bird::game_start.in_set(OnUpdate(AppState::MainMenu)))
-        .add_system(menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
         .add_systems(
             (
                 bird::apply_bird_velocity,

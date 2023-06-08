@@ -17,6 +17,7 @@ pub fn setup(
         },
         ..default()
     },
+    ScoreboardNode,
     ))
     .with_children(|parent| {
         parent.spawn(NodeBundle {
@@ -52,10 +53,30 @@ pub struct Scoreboard {
 #[derive(Component)]
 pub struct ScoreboardText;
 
+#[derive(Component)]
+pub struct ScoreboardNode;
+
 pub fn update_scoreboard(
     scoreboard: Res<Scoreboard>,
     mut query: Query<&mut Text, With<ScoreboardText>>,
 ) {
     let mut text = query.single_mut();
     text.sections[0].value = scoreboard.score.to_string();
+}
+
+pub fn remove_scoreboard_text(
+    node_query: Query<Entity, With<ScoreboardNode>>,
+    text_query: Query<Entity, With<ScoreboardText>>, 
+    mut commands: Commands,
+) {
+    let node = node_query.single();
+    let text = text_query.single();
+
+    commands
+        .entity(node)
+        .despawn();
+
+    commands
+        .entity(text)
+        .despawn();
 }

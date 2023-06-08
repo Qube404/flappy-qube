@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use super::{
+    AppState,
     Collider,
     scoreboard::Scoreboard,
     bird::Bird,
@@ -30,6 +31,7 @@ pub fn game_over(
         (With<Collider>, Without<Bird>)>,
     mut score: ResMut<Scoreboard>,
     collision_event: EventReader<super::bird::BirdCollisionEvent>,
+    mut next_state: ResMut<NextState<AppState>>,
 ) {
     let mut rand = thread_rng();
     let mut random_heights: Vec<f32> = Vec::new();
@@ -71,4 +73,6 @@ pub fn game_over(
             }
         } 
     }
+
+    next_state.set(AppState::MainMenu);
 }
