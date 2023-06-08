@@ -137,7 +137,7 @@ pub fn bird_pipe_collisions(
         // Collision checking function
         let collision = collide(
             bird_transform.translation,
-            Vec2::new(10., 10.),
+            Vec2::new(20., 20.),
             pipe_transform.translation,
             Vec2::new(PIPE_X_SIZE, PIPE_Y_SIZE),
         );

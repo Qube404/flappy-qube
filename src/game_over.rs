@@ -40,11 +40,15 @@ pub fn game_over(
     }
 
     if !collision_event.is_empty() {
+        // Score
         score.score = 0;
 
+        // Bird
         let mut bird_transform = bird_query.single_mut();
         bird_transform.translation.y = 0.;
+        bird_transform.rotation.z = 0.;
 
+        // Pipes
         for (
             mut pipe_transform, 
             offset, 
