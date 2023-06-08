@@ -15,10 +15,12 @@ use super::{
     pipes::Pipe,
     pipes::PointMarker,
     pipes::BeenAdded,
+    pipes::PIPE_X_SIZE,
+    pipes::PIPE_Y_SIZE,
 };
 
 // Constants
-const BIRD_SIZE: f32 = 1.;
+const BIRD_SIZE: f32 = 80.;
 const BIRD_SCALE: Vec3 = Vec3::new(BIRD_SIZE, BIRD_SIZE, 1.);
 const BIRD_JUMP: f32 = 800.;
 const BIRD_STARTING_POSITION: Vec3 = Vec3::new(0., 0., 2.);
@@ -39,7 +41,7 @@ pub fn setup(
             texture: bird_handle,
             transform: Transform {
                 translation: BIRD_STARTING_POSITION,
-                scale: BIRD_SCALE,
+                scale: Vec3::new(4., 4., 0.),
                 ..default()
             },
             ..default()
@@ -110,13 +112,16 @@ pub fn bird_pipe_collisions(
     let bird_transform = bird_query.single_mut();
 
     // Collision check
+    //
+    // Checks the bird with a scale of 1 so that the game
+    // is more forgiving.
     for pipe_transform in &collider_query {
         // Collision checking function
         let collision = collide(
             bird_transform.translation,
-            bird_transform.scale.truncate(),
+            Vec2::new(1., 1.),
             pipe_transform.translation,
-            pipe_transform.scale.truncate(),
+            Vec2::new(PIPE_X_SIZE, PIPE_Y_SIZE),
         );
 
         // If there was a collision send a collision event

@@ -12,8 +12,8 @@ use super::{
 };
 
 // Constants
-pub const PIPE_X_SIZE: f32 = 100.;
-pub const PIPE_Y_SIZE: f32 = 800.;
+pub const PIPE_X_SIZE: f32 = 90.;//100
+pub const PIPE_Y_SIZE: f32 = 750.;//800
 
 // Always use this for the amount of pipes in game.
 pub const PIPE_AMOUNT: i32 = 6;
