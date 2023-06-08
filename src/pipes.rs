@@ -46,7 +46,7 @@ pub fn setup(
                     texture: pipe_handle.clone(),
                     transform: Transform {
                         translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height, 1.),
-                        scale: Vec3::new(5., 10., 0.),
+                        scale: Vec3::new(5., 5., 0.),
                         ..default()
                     },
                     ..default()
@@ -70,7 +70,7 @@ pub fn setup(
                     texture: pipe_handle.clone(),
                     transform: Transform {
                         translation: Vec3::new(i as f32 * PIPE_GAP_X, pipe_height - PIPE_GAP_Y, 1.),
-                        scale: Vec3::new(5., 10., 0.),
+                        scale: Vec3::new(5., 5., 0.),
                         rotation: Quat::from_rotation_x(f32::to_radians(180.)),
                         ..default()
                     },
