@@ -52,13 +52,6 @@ pub fn setup(
         GravityCap(GRAVITY_CAP),
         SpeedCap(SPEED_CAP),
 
-        VelocityRotator {
-            angle_up: std::f32::consts::PI * 0.5 * 0.7,
-            angle_down: std::f32::consts::PI * 0.5 * 0.5,
-
-            velocity_max: Vec2::new(0., 400.),
-        },
-
         Bird,
     ));
 }
@@ -75,15 +68,6 @@ pub struct SpeedCap(Vec2);
 
 #[derive(Default)]
 pub struct BirdCollisionEvent;
-
-#[derive(Component)]
-pub struct VelocityRotator {
-    pub angle_up: f32,
-    pub angle_down: f32,
-
-    // Velocity needed to reach the min or max angle.
-    pub velocity_max: Vec2,
-}
 
 // Player movement by adding to birds velocity
 pub fn move_bird(
@@ -120,20 +104,14 @@ pub fn apply_bird_gravity(
 }
 
 pub fn rotate_bird(
-    mut query: Query<(&mut Transform, &Velocity, &VelocityRotator), With<Bird>>,
+    mut query: Query<(&mut Transform, &Velocity), With<Bird>>,
 ) {
-    let (mut transform, velocity, rotator) = query.single_mut();
+    let (mut transform, velocity) = query.single_mut();
 
-    let mut procentage = velocity.y / rotator.velocity_max.y;
-    procentage = procentage.max(-1.0);
-    procentage = procentage.min(1.0);
+    let max_rotation = Quat::from_rotation_z(f32::to_radians(50.));
+    let min_rotation = Quat::from_rotation_z(f32::to_radians(-50.));
 
-    procentage = (procentage + 1.) * 0.5;
-
-    let rad_angle = 
-        (1. - procentage) * rotator.angle_down + procentage * rotator.angle_up;
-
-    transform.rotation = Quat::from_rotation_z(rad_angle);
+    transform.rotation = min_rotation.lerp(max_rotation, 0.);
 }
 
 // Check for collisions with pipes
