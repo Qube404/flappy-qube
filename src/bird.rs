@@ -108,10 +108,17 @@ pub fn rotate_bird(
 ) {
     let (mut transform, velocity) = query.single_mut();
 
-    let max_rotation = Quat::from_rotation_z(f32::to_radians(50.));
-    let min_rotation = Quat::from_rotation_z(f32::to_radians(-50.));
+    let mut percentage: f32 = velocity.y / SPEED_CAP.y;
 
-    transform.rotation = min_rotation.lerp(max_rotation, 0.);
+    percentage = percentage.max(-1.0);
+    percentage = percentage.min(1.0);
+
+    percentage = (percentage + 1.0) * 0.5;
+
+    let max_rotation = Quat::from_rotation_z(f32::to_radians(80.));
+    let min_rotation = Quat::from_rotation_z(f32::to_radians(-80.));
+
+    transform.rotation = min_rotation.lerp(max_rotation, percentage);
 }
 
 // Check for collisions with pipes
