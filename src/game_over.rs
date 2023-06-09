@@ -4,7 +4,7 @@ use super::{
     AppState,
     Collider,
     Velocity,
-    scoreboard::Scoreboard,
+    game_ui::scoreboard::Scoreboard,
     bird::Bird,
     pipes::Offset,
     pipes::PointMarker,

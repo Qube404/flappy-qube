@@ -4,11 +4,9 @@ use bevy::prelude::*;
 
 mod bird;
 mod pipes;
-mod scoreboard;
 mod camera;
 mod game_over;
-mod menu;
-mod fps;
+mod game_ui;
 
 /// Constants
 const TIME_STEP: f32 = 1. / 60.;
@@ -25,7 +23,8 @@ fn main() {
 
         .add_state::<AppState>()
         
-        .insert_resource(scoreboard::Scoreboard { score: 0 })
+        .insert_resource(game_ui::scoreboard::Scoreboard { score: 0 })
+        .insert_resource(game_ui::fps::FpsSpawned(false))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
 
         .add_event::<bird::BirdCollisionEvent>()
@@ -33,13 +32,15 @@ fn main() {
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
         .add_startup_system(camera::setup)
-        .add_startup_system(fps::setup)
+        .add_startup_system(game_ui::setup)
 
-        .add_system(scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
-        .add_system(scoreboard::remove_scoreboard_text.in_schedule(OnExit(AppState::InGame)))
+        .add_system(game_ui::menu::setup.in_schedule(OnEnter(AppState::MainMenu)))
+        .add_system(game_ui::menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
 
-        .add_system(menu::setup.in_schedule(OnEnter(AppState::MainMenu)))
-        .add_system(menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
+        .add_system(game_ui::fps::setup.in_schedule(OnEnter(AppState::MainMenu)))
+
+        .add_system(game_ui::scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
+        .add_system(game_ui::scoreboard::remove_scoreboard_text.in_schedule(OnExit(AppState::InGame)))
 
         .add_systems(
             (
@@ -55,7 +56,7 @@ fn main() {
 
                 pipes::apply_pipes_velocity,
 
-                fps::update_fps,
+                game_ui::fps::update_fps,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -68,7 +69,7 @@ fn main() {
                 bird::bird_point_collisions,
                 bird::bird_boundary_collisions,
 
-                scoreboard::update_scoreboard,
+                game_ui::scoreboard::update_scoreboard,
 
                 game_over::game_over,
             )

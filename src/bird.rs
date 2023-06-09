@@ -7,7 +7,7 @@ use super::{
     GRAVITY,
     Collider,
     AppState,
-    scoreboard::Scoreboard,
+    game_ui::scoreboard::Scoreboard,
     pipes::Pipe,
     pipes::PointMarker,
     pipes::BeenAdded,
