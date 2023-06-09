@@ -17,7 +17,6 @@ pub fn setup(
             flex_basis: Val::Percent(100.),
             justify_content: JustifyContent::Start,
             align_items: AlignItems::Start,
-            position_type: PositionType::Absolute,
             ..default()
         },
         ..default()
@@ -29,6 +28,7 @@ pub fn setup(
             style: Style {
                 padding: UiRect {
                     top: Val::Percent(10.),
+                    left: Val::Percent(10.),
                     ..default()
                 },
                 ..default()
@@ -50,10 +50,10 @@ pub fn setup(
 }
 
 #[derive(Component)]
-pub struct FpsNode;
+pub struct FpsText;
 
 #[derive(Component)]
-pub struct FpsText;
+pub struct FpsNode;
 
 pub fn update_fps(
     mut query: Query<&mut Text, With<FpsText>>,

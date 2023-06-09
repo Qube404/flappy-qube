@@ -13,7 +13,6 @@ pub fn setup(
             flex_basis: Val::Percent(100.),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Start,
-            position_type: PositionType::Absolute,
             ..default()
         },
         ..default()
