@@ -184,11 +184,9 @@ pub fn move_pipes(
         let x_pos = transform.translation.x;
 
         if x_pos <= -1000.  {
-            println!("Pipe");
             transform.translation.x = 2000.;
             transform.translation.y = pipe_height + offset.0;
         } else if x_pos <= -1000. + PIPE_X_SIZE / 2. && point_marker.is_some() {
-            println!("Point Marker");
             transform.translation.x = 2000. + PIPE_X_SIZE / 2.;
             transform.translation.y = pipe_height + offset.0;
             been_added

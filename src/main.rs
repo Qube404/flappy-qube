@@ -8,6 +8,7 @@ mod scoreboard;
 mod camera;
 mod game_over;
 mod menu;
+mod fps;
 
 /// Constants
 const TIME_STEP: f32 = 1. / 60.;
@@ -32,6 +33,7 @@ fn main() {
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
         .add_startup_system(camera::setup)
+        .add_startup_system(fps::setup)
 
         .add_system(scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
         .add_system(scoreboard::remove_scoreboard_text.in_schedule(OnExit(AppState::InGame)))
@@ -52,6 +54,8 @@ fn main() {
                 bird::rotate_bird,
 
                 pipes::apply_pipes_velocity,
+
+                fps::update_fps,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
