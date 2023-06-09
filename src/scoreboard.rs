@@ -8,7 +8,45 @@ pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
+    // Text
+    let scoreboard_text = commands.spawn(TextBundle::from_section(
+        "0",
+        TextStyle {
+            font: asset_server.load("fonts/slkscrb.ttf"),
+            font_size: SCOREBOARD_TEXT_SIZE,
+            color: super::TEXT_COLOR,
+        }
+    )).id();
+
+    // Inner Node
+    let inner_scoreboard_node = commands.spawn((NodeBundle {
+        style: Style {
+            padding: UiRect {
+                top: Val::Percent(10.),
+                ..default()
+            },
+            ..default()
+        },
+        ..default()
+    },
+    ScoreboardText(scoreboard_text),
+    )).id();
+
+    // Outer Node
     commands.spawn((NodeBundle {
+        style: Style {
+            flex_basis: Val::Percent(100.),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Start,
+            ..default()
+        },
+        ..default()
+    },
+    ScoreboardNode(inner_scoreboard_node),
+    ));
+
+    // Old
+    /*commands.spawn((NodeBundle {
         style: Style {
             flex_basis: Val::Percent(100.),
             justify_content: JustifyContent::Center,
@@ -41,7 +79,7 @@ pub fn setup(
             ScoreboardText,
             ));
         });
-    });
+    });*/
 }
 
 // Components, Resources, Events
@@ -51,16 +89,21 @@ pub struct Scoreboard {
 }
 
 #[derive(Component)]
-pub struct ScoreboardText;
+pub struct ScoreboardText(Entity);
 
 #[derive(Component)]
-pub struct ScoreboardNode;
+pub struct ScoreboardNode(Entity);
 
 pub fn update_scoreboard(
     scoreboard: Res<Scoreboard>,
-    mut query: Query<&mut Text, With<ScoreboardText>>,
+    mut query: Query<&mut Text>,
+    scoreboard_query: Query<Entity, With<ScoreboardText>>,
 ) {
-    let mut text = query.single_mut();
+    let text_entity = scoreboard_query.single();
+    let text = &mut query
+        .get_mut(text_entity)
+        .expect("Should be a valid text entity.");
+
     text.sections[0].value = scoreboard.score.to_string();
 }
 
