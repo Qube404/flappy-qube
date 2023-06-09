@@ -39,18 +39,23 @@ fn main() {
         .add_system(menu::setup.in_schedule(OnEnter(AppState::MainMenu)))
         .add_system(menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
 
-        .add_system(bird::game_start.in_set(OnUpdate(AppState::MainMenu)))
+        .add_systems(
+            (
+                bird::game_start,
+                bird::idle_bird_jump,
+            ).in_set(OnUpdate(AppState::MainMenu))
+        )
         .add_systems(
             (
                 bird::apply_bird_velocity,
+                bird::apply_bird_gravity,
+
                 pipes::apply_pipes_velocity,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
         .add_systems(
             (
-                bird::apply_bird_gravity,
-
                 bird::move_bird,
                 pipes::move_pipes,
 

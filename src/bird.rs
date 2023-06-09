@@ -200,3 +200,14 @@ pub fn game_start(
         }
     }
 }
+
+// Idle Jumping for menu state
+pub fn idle_bird_jump(
+    mut query: Query<(&Transform, &mut Velocity), With<Bird>>
+) {
+    let (transform, mut velocity) = query.single_mut();
+
+    if transform.translation.y <= -100. {
+        velocity.y = BIRD_JUMP * TIME_STEP;
+    }
+}
