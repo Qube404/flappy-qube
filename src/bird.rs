@@ -168,6 +168,23 @@ pub fn bird_point_collisions(
     }
 }
 
+
+// Check for collisions with roof or floor
+pub fn bird_boundary_collisions(
+    query: Query<&Transform, With<Bird>>,
+    mut collision_events: EventWriter<BirdCollisionEvent>,
+) {
+    let transform = query.single();
+
+    if 
+        transform.translation.y <= -600. ||
+        transform.translation.y >= 600. 
+    {
+        collision_events.send_default();   
+    }
+
+}
+
 // Apply velocity to birds transform
 pub fn apply_bird_velocity(
     mut query: Query<(&mut Transform, &Velocity), With<Bird>>

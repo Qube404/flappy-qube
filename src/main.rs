@@ -62,6 +62,7 @@ fn main() {
 
                 bird::bird_pipe_collisions,
                 bird::bird_point_collisions,
+                bird::bird_boundary_collisions,
 
                 scoreboard::update_scoreboard,
 
