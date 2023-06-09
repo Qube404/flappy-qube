@@ -49,6 +49,7 @@ fn main() {
             (
                 bird::apply_bird_velocity,
                 bird::apply_bird_gravity,
+                bird::rotate_bird,
 
                 pipes::apply_pipes_velocity,
             )
@@ -58,8 +59,6 @@ fn main() {
             (
                 bird::move_bird,
                 pipes::move_pipes,
-
-                bird::rotate_bird,
 
                 bird::bird_pipe_collisions,
                 bird::bird_point_collisions,
