@@ -56,9 +56,6 @@ pub struct ScoreboardText;
 #[derive(Component)]
 pub struct ScoreboardNode;
 
-#[derive(Component)]
-pub struct ScoreboardOuterNode;
-
 pub fn update_scoreboard(
     scoreboard: Res<Scoreboard>,
     mut query: Query<&mut Text, With<ScoreboardText>>,
@@ -69,7 +66,7 @@ pub fn update_scoreboard(
 }
 
 pub fn remove_scoreboard_text(
-    node_query: Query<Entity, With<ScoreboardOuterNode>>,
+    node_query: Query<Entity, With<ScoreboardNode>>,
     mut commands: Commands,
 ) {
     let node = node_query.single();
