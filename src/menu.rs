@@ -53,5 +53,5 @@ pub fn remove_menu_text(
 
     commands
         .entity(menu_text)
-        .despawn();
+        .despawn_recursive();
 }
