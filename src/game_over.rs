@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use super::{
     AppState,
     Collider,
+    Velocity,
     scoreboard::Scoreboard,
     bird::Bird,
     pipes::Offset,
@@ -19,9 +20,10 @@ use rand::prelude::*;
 
 // Restarts the game when a collision event is recieved
 pub fn game_over(
-    mut bird_query: Query<&mut Transform, (With<Bird>, Without<Collider>)>,
+    mut bird_query: Query<(&mut Transform, &mut Velocity), (With<Bird>, Without<Collider>)>,
     mut pipes_query: Query<(
         &mut Transform, 
+        &mut Velocity,
         &Offset, 
         &mut StartingPosition, 
         &NumberOf,
@@ -46,13 +48,15 @@ pub fn game_over(
         score.score = 0;
 
         // Bird
-        let mut bird_transform = bird_query.single_mut();
+        let (mut bird_transform, mut bird_velocity) = bird_query.single_mut();
         bird_transform.translation.y = 0.;
         bird_transform.rotation.z = 0.;
+        bird_velocity.0 = Vec2::new(0., 0.);
 
         // Pipes
         for (
             mut pipe_transform, 
+            mut pipe_velocity,
             offset, 
             starting_position, 
             number_of,
@@ -63,6 +67,8 @@ pub fn game_over(
                     .get(number_of.0 - 1)
                     .expect("Should be a valid index in random_heights") + offset.0;
 
+            pipe_velocity.0 = Vec2::new(0., 0.,);
+
             if point_marker.is_some() {
                 pipe_transform.translation.x = starting_position.0.x + PIPE_X_SIZE / 2.;
                 been_added
@@ -72,7 +78,7 @@ pub fn game_over(
                 pipe_transform.translation.x = starting_position.0.x;
             }
         } 
-    }
 
-    next_state.set(AppState::MainMenu);
+        next_state.set(AppState::MainMenu);
+    }
 }
