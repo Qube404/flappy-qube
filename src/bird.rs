@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 use bevy::sprite::{
-    MaterialMesh2dBundle,
-    Mesh2dHandle,
     collide_aabb::collide,
 };
 

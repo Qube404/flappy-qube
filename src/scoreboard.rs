@@ -43,6 +43,7 @@ pub fn setup(
         ..default()
     },
     ScoreboardNode(inner_scoreboard_node),
+    ScoreboardOuterNode,
     ));
 
     // Old
@@ -94,6 +95,9 @@ pub struct ScoreboardText(Entity);
 #[derive(Component)]
 pub struct ScoreboardNode(Entity);
 
+#[derive(Component)]
+pub struct ScoreboardOuterNode;
+
 pub fn update_scoreboard(
     scoreboard: Res<Scoreboard>,
     mut query: Query<&mut Text>,
@@ -108,18 +112,12 @@ pub fn update_scoreboard(
 }
 
 pub fn remove_scoreboard_text(
-    node_query: Query<Entity, With<ScoreboardNode>>,
-    text_query: Query<Entity, With<ScoreboardText>>, 
+    node_query: Query<Entity, With<ScoreboardOuterNode>>,
     mut commands: Commands,
 ) {
     let node = node_query.single();
-    let text = text_query.single();
 
     commands
         .entity(node)
-        .despawn();
-
-    commands
-        .entity(text)
         .despawn();
 }
