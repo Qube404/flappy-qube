@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use bevy::sprite::{
-    collide_aabb::collide,
-};
+use bevy::sprite::collide_aabb::collide;
 
 use super::{
     Velocity, 
