@@ -1,6 +1,9 @@
 use std::{fs::File, io::{Write, Read}};
 
-use bevy::{prelude::*, app::AppExit};
+use bevy::{
+    prelude::*,
+    window::WindowCloseRequested,
+};
 
 use super::{
     NodeLeftSide,
@@ -64,6 +67,9 @@ pub struct HighScoreText;
 pub struct HighScoreSpawned(pub bool);
 
 #[derive(Resource)]
+pub struct HighScoreLoaded(pub bool);
+
+#[derive(Resource)]
 pub struct HighScore {
     pub highscore: i128,
 }
@@ -88,31 +94,33 @@ pub fn update_highscore_text(
 // Load high score on open
 pub fn load_high_score(
     mut highscore: ResMut<HighScore>,
+    mut loaded: ResMut<HighScoreLoaded>,
 ) {
-    println!("Here");
+    if loaded.0 == true {
+        return;
+    }
+
     if let Ok(mut file) = File::open("highscore.txt") {
         let mut contents = String::new();
 
         file.read_to_string(&mut contents)
             .expect("Should be able to read contents");
 
-        // Removing line feed character
-        contents.pop();
-
         highscore.highscore = contents.parse::<i128>()
             .expect("Should be a valid i128 value");
     }
+
+    loaded.0 = true;
 }
 
 // Save high score on close
 pub fn save_high_score(
-    exit_event: EventReader<AppExit>,
     highscore: Res<HighScore>,
+    score: Res<Scoreboard>,
 ) {
-    if exit_event.is_empty() {
+    if score.score > highscore.highscore {
         return;
     }
-    println!("Here 1");
 
     // Truncates file if it exists.
     let mut file = File::create("highscore.txt")

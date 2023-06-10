@@ -1,6 +1,7 @@
 /// A version of flappy bird
 
 use bevy::{prelude::*, diagnostic::FrameTimeDiagnosticsPlugin};
+use game_ui::high_score;
 
 mod bird;
 mod pipes;
@@ -28,6 +29,7 @@ fn main() {
         .insert_resource(game_ui::high_score::HighScore { highscore: 0 })
         .insert_resource(game_ui::fps::FpsSpawned(false))
         .insert_resource(game_ui::high_score::HighScoreSpawned(false))
+        .insert_resource(game_ui::high_score::HighScoreLoaded(false))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
 
         .add_event::<bird::BirdCollisionEvent>()
@@ -42,10 +44,13 @@ fn main() {
 
         .add_system(game_ui::fps::setup.in_schedule(OnEnter(AppState::MainMenu)))
 
-        .add_system(game_ui::high_score::load_high_score.in_schedule(OnEnter(AppState::MainMenu)))
         .add_system(game_ui::high_score::setup.in_schedule(OnEnter(AppState::MainMenu))
             .after(game_ui::menu::setup)
         )
+
+        .add_system(game_ui::high_score::load_high_score.in_schedule(OnEnter(AppState::MainMenu))
+            .after(game_ui::high_score::save_high_score))
+        .add_system(game_ui::high_score::save_high_score.in_schedule(OnEnter(AppState::InGame)))
 
         .add_system(game_ui::scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
         .add_system(game_ui::scoreboard::remove_scoreboard_text.in_schedule(OnExit(AppState::InGame)))
@@ -66,7 +71,6 @@ fn main() {
 
                 game_ui::fps::update_fps,
 
-                game_ui::high_score::save_high_score,
                 game_ui::high_score::update_highscore_text,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
@@ -88,7 +92,6 @@ fn main() {
             )
             .in_set(OnUpdate(AppState::InGame))
         )
-        .add_system(bevy::window::close_on_esc)
         .run();
 }
 
