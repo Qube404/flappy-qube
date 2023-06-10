@@ -67,6 +67,7 @@ fn main() {
                 game_ui::fps::update_fps,
 
                 game_ui::high_score::save_high_score,
+                game_ui::high_score::update_highscore_text,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -82,7 +83,6 @@ fn main() {
                 game_ui::scoreboard::update_scoreboard,
 
                 game_ui::high_score::update_highscore,
-                game_ui::high_score::update_highscore_text,
 
                 game_over::game_over,
             )

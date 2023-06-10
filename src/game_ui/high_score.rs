@@ -89,11 +89,15 @@ pub fn update_highscore_text(
 pub fn load_high_score(
     mut highscore: ResMut<HighScore>,
 ) {
+    println!("Here");
     if let Ok(mut file) = File::open("highscore.txt") {
         let mut contents = String::new();
 
         file.read_to_string(&mut contents)
             .expect("Should be able to read contents");
+
+        // Removing line feed character
+        contents.pop();
 
         highscore.highscore = contents.parse::<i128>()
             .expect("Should be a valid i128 value");
@@ -108,6 +112,7 @@ pub fn save_high_score(
     if exit_event.is_empty() {
         return;
     }
+    println!("Here 1");
 
     // Truncates file if it exists.
     let mut file = File::create("highscore.txt")
