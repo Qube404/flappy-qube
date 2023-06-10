@@ -41,6 +41,8 @@ fn main() {
         .add_system(game_ui::menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
 
         .add_system(game_ui::fps::setup.in_schedule(OnEnter(AppState::MainMenu)))
+
+        .add_system(game_ui::high_score::load_high_score.in_schedule(OnEnter(AppState::MainMenu)))
         .add_system(game_ui::high_score::setup.in_schedule(OnEnter(AppState::MainMenu))
             .after(game_ui::menu::setup)
         )
@@ -63,6 +65,8 @@ fn main() {
                 pipes::apply_pipes_velocity,
 
                 game_ui::fps::update_fps,
+
+                game_ui::high_score::save_high_score,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )
@@ -84,6 +88,7 @@ fn main() {
             )
             .in_set(OnUpdate(AppState::InGame))
         )
+        .add_system(bevy::window::close_on_esc)
         .run();
 }
 

@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::{fs::File, io::{Write, Read}};
 
 use bevy::{prelude::*, app::AppExit};
 
@@ -86,9 +86,38 @@ pub fn update_highscore_text(
 }
 
 // Load high score on open
+pub fn load_high_score(
+    mut highscore: ResMut<HighScore>,
+) {
+    if let Ok(mut file) = File::open("highscore.txt") {
+        let mut contents = String::new();
+
+        file.read_to_string(&mut contents)
+            .expect("Should be able to read contents");
+
+        highscore.highscore = contents.parse::<i128>()
+            .expect("Should be a valid i128 value");
+    }
+}
 
 // Save high score on close
 pub fn save_high_score(
-    exit_event: EventReader<AppExit>
+    exit_event: EventReader<AppExit>,
+    highscore: Res<HighScore>,
 ) {
+    if exit_event.is_empty() {
+        return;
+    }
+
+    // Truncates file if it exists.
+    let mut file = File::create("highscore.txt")
+        .expect("Should be able to create file");
+
+    let save_text = highscore
+        .highscore
+        .to_string();
+
+    file
+        .write_all(save_text.as_bytes())
+        .expect("Should be able to write to file");
 }
