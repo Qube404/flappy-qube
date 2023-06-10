@@ -17,7 +17,7 @@ pub const PIPE_Y_SIZE: f32 = 750.;//800
 
 // Always use this for the amount of pipes in game.
 pub const PIPE_AMOUNT: i32 = 6;
-pub const PIPE_HEIGHT_RANGE: RangeInclusive<i32> = 300..=800;
+pub const PIPE_HEIGHT_RANGE: RangeInclusive<i32> = 200..=700;
 
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
 const POINT_MARKER: Color = Color::rgba(0., 0., 0., 0.);

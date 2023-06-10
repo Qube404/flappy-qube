@@ -17,7 +17,7 @@ pub fn setup(
     window_query: Query<&Window>,
 ) {
     let window = window_query.single();
-    let text_height = window.height() / 5.;
+    let text_height = window.height() / 7.;
 
     let text = commands.spawn((TextBundle::from_sections([
         TextSection::new(

@@ -1,6 +1,6 @@
 /// A version of flappy bird
 
-use bevy::prelude::*;
+use bevy::{prelude::*, diagnostic::FrameTimeDiagnosticsPlugin};
 
 mod bird;
 mod pipes;
@@ -20,11 +20,13 @@ fn main() {
             // Stops pixel art from being blurry.
             ImagePlugin::default_nearest()
         ))
+        .add_plugin(FrameTimeDiagnosticsPlugin)
 
         .add_state::<AppState>()
         
         .insert_resource(game_ui::scoreboard::Scoreboard { score: 0 })
         .insert_resource(game_ui::fps::FpsSpawned(false))
+        .insert_resource(game_ui::high_score::HighScoreSpawned(false))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
 
         .add_event::<bird::BirdCollisionEvent>()
@@ -38,6 +40,9 @@ fn main() {
         .add_system(game_ui::menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
 
         .add_system(game_ui::fps::setup.in_schedule(OnEnter(AppState::MainMenu)))
+        .add_system(game_ui::high_score::setup.in_schedule(OnEnter(AppState::MainMenu))
+            .after(game_ui::menu::setup)
+        )
 
         .add_system(game_ui::scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
         .add_system(game_ui::scoreboard::remove_scoreboard_text.in_schedule(OnExit(AppState::InGame)))
