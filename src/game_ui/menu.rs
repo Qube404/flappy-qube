@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
-use super::{
-    WindowUiNode,
-    Inner,
-};
+use super::WindowUiNode;
 
 // Constants
 const MENU_TEXT_SIZE: f32 = 34.;
@@ -12,10 +9,10 @@ const MENU_TEXT_SIZE: f32 = 34.;
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    query: Query<Entity, (With<WindowUiNode>, With<Inner>)>
+    query: Query<Entity, With<WindowUiNode>>
 ) {
     let text = commands.spawn((TextBundle::from_section(
-            "Menu",
+            "Press Space or Mouse1 to start!",
             TextStyle {
                 font: asset_server.load("fonts/slkscrb.ttf"),
                 font_size: MENU_TEXT_SIZE,
@@ -37,7 +34,7 @@ pub struct MenuText;
 pub fn remove_menu_text(
     mut commands: Commands,
     text_query: Query<Entity, With<MenuText>>,
-    node_query: Query<Entity, (With<WindowUiNode>, With<Inner>)>
+    node_query: Query<Entity, With<WindowUiNode>>
 ) {
     let text = text_query.single();
     let node = node_query.single();
