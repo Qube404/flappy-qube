@@ -25,6 +25,7 @@ fn main() {
         .add_state::<AppState>()
         
         .insert_resource(game_ui::scoreboard::Scoreboard { score: 0 })
+        .insert_resource(game_ui::high_score::HighScore { highscore: 0 })
         .insert_resource(game_ui::fps::FpsSpawned(false))
         .insert_resource(game_ui::high_score::HighScoreSpawned(false))
         .insert_resource(ClearColor(BACKGROUND_COLOR))
@@ -75,6 +76,7 @@ fn main() {
                 bird::bird_boundary_collisions,
 
                 game_ui::scoreboard::update_scoreboard,
+                game_ui::high_score::update_highscore,
 
                 game_over::game_over,
             )

@@ -1,9 +1,13 @@
-use bevy::prelude::*;
+use std::fs::File;
+
+use bevy::{prelude::*, app::AppExit};
 
 use super::{
     NodeLeftSide,
     NodeCenterSide,
     NodeRightSide,
+
+    scoreboard::Scoreboard,
 };
 
 // Constants
@@ -31,11 +35,14 @@ pub fn setup(
                 },
             ),
 
-            TextSection::from_style(TextStyle {
+            TextSection::new(
+                "0",
+                TextStyle {
                     font: asset_server.load("fonts/slkscrb.ttf"),
                     font_size: FPS_TEXT_SIZE,
                     color: crate::TEXT_COLOR,
-            }),
+                },
+            ),
         ]),
 
         HighScoreText,
@@ -55,3 +62,25 @@ pub struct HighScoreText;
 
 #[derive(Resource)]
 pub struct HighScoreSpawned(pub bool);
+
+#[derive(Resource)]
+pub struct HighScore {
+    pub highscore: i128,
+}
+
+pub fn update_highscore(
+    score: Res<Scoreboard>,
+    mut highscore: ResMut<HighScore>,
+) {
+    if score.score > highscore.highscore {
+        highscore.highscore = score.score;  
+    }  
+}
+
+// Load high score on open
+
+// Save high score on close
+pub fn save_high_score(
+    exit_event: EventReader<AppExit>
+) {
+}

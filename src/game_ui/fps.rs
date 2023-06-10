@@ -35,11 +35,14 @@ pub fn setup(
                 },
             ),
 
-            TextSection::from_style(TextStyle {
+            TextSection::new(
+                "0",
+                TextStyle {
                     font: asset_server.load("fonts/slkscrb.ttf"),
                     font_size: FPS_TEXT_SIZE,
                     color: crate::TEXT_COLOR,
-            }),
+                },
+            ),
         ]),
 
         FpsTime(Timer::from_seconds(1., TimerMode::Repeating)),
