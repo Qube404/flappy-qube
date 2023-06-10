@@ -12,13 +12,14 @@ pub fn setup(
     query: Query<Entity, With<WindowUiNode>>
 ) {
     let text = commands.spawn((TextBundle::from_section(
-            "Press Space or Mouse1 to start!",
+            "Press Space or M1!",
             TextStyle {
                 font: asset_server.load("fonts/slkscrb.ttf"),
                 font_size: MENU_TEXT_SIZE,
                 color: crate::TEXT_COLOR,
         },
     ),
+
     MenuText,
     )).id();
 

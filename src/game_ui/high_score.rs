@@ -1,7 +1,4 @@
-use bevy::{
-    prelude::*,
-    diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
-};
+use bevy::prelude::*;
 
 use super::WindowUiNode;
 
@@ -12,18 +9,18 @@ const FPS_TEXT_SIZE: f32 = 48.;
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut fps_spawned: ResMut<FpsSpawned>,
+    mut high_score_spawned: ResMut<HighScoreSpawned>,
     window_node_query: Query<Entity, With<WindowUiNode>>,
 
 ) {
-    if fps_spawned.0 == true {
+    if high_score_spawned.0 == true {
         return;
     }
 
     let text = commands.spawn((
         TextBundle::from_sections([
             TextSection::new(
-                "FPS: ",
+                "High: ",
                 TextStyle {
                     font: asset_server.load("fonts/slkscrb.ttf"),
                     font_size: FPS_TEXT_SIZE,
@@ -38,7 +35,7 @@ pub fn setup(
             }),
         ]),
 
-        FpsText,
+        HighScoreText,
     )).id();
 
     let window_ui_node = window_node_query.single();
@@ -47,28 +44,11 @@ pub fn setup(
         .entity(window_ui_node)
         .add_child(text);
 
-    fps_spawned.0 = true;
+    high_score_spawned.0 = true;
 }
 
 #[derive(Component)]
-pub struct FpsText;
-
-#[derive(Component)]
-pub struct FpsNode;
+pub struct HighScoreText;
 
 #[derive(Resource)]
-pub struct FpsSpawned(pub bool);
-
-pub fn update_fps(
-    mut query: Query<&mut Text, With<FpsText>>,
-    diagnostics: Res<Diagnostics>,
-) {
-    let mut text = query.single_mut();
-
-    if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
-        if let Some(value) = fps.smoothed() {
-            text.sections[1].value = format!("{value:.2}");
-            println!("{value:.2}");
-        }
-    }
-}
+pub struct HighScoreSpawned(pub bool);

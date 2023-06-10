@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use super::WindowUiNode;
 
 // Constants
-const SCOREBOARD_TEXT_SIZE: f32 = 56.;
+const SCOREBOARD_TEXT_SIZE: f32 = 48.;
 
 // Initial Setup
 pub fn setup(
