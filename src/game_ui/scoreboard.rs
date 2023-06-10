@@ -1,16 +1,24 @@
 use bevy::prelude::*;
 
-use super::WindowUiNode;
+use super::{
+    NodeLeftSide,
+    NodeCenterSide,
+    NodeRightSide,
+};
 
 // Constants
-const SCOREBOARD_TEXT_SIZE: f32 = 48.;
+const SCOREBOARD_TEXT_SIZE: f32 = 72.;
 
 // Initial Setup
 pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    query: Query<Entity, With<WindowUiNode>>
+    query: Query<Entity, With<NodeCenterSide>>,
+    window_query: Query<&Window>,
 ) {
+    let window = window_query.single();
+    let text_height = window.height() / 5.;
+
     let text = commands.spawn((TextBundle::from_sections([
         TextSection::new(
             "Score: ",
@@ -27,7 +35,14 @@ pub fn setup(
                 color: crate::TEXT_COLOR,
             }
         )
-    ]),
+    ]).with_style(Style {
+        margin: UiRect {
+            top: Val::Px(text_height),
+            ..default()
+        },
+        ..default()
+    }),
+
     ScoreboardText,
     )).id();
 
@@ -57,7 +72,7 @@ pub fn update_scoreboard(
 
 pub fn remove_scoreboard_text(
     text_query: Query<Entity, With<ScoreboardText>>,
-    node_query: Query<Entity, With<WindowUiNode>>,
+    node_query: Query<Entity, With<NodeCenterSide>>,
     mut commands: Commands,
 ) {
     let text = text_query.single();

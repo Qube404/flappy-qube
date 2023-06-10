@@ -3,7 +3,11 @@ use bevy::{
     diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin},
 };
 
-use super::WindowUiNode;
+use super::{
+    NodeLeftSide,
+    NodeCenterSide,
+    NodeRightSide,
+};
 
 // Constants
 const FPS_TEXT_SIZE: f32 = 48.;
@@ -13,8 +17,7 @@ pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut fps_spawned: ResMut<FpsSpawned>,
-    window_node_query: Query<Entity, With<WindowUiNode>>,
-
+    node_query: Query<Entity, With<NodeLeftSide>>,
 ) {
     if fps_spawned.0 == true {
         return;
@@ -41,10 +44,10 @@ pub fn setup(
         FpsText,
     )).id();
 
-    let window_ui_node = window_node_query.single();
+    let node = node_query.single();
 
     commands
-        .entity(window_ui_node)
+        .entity(node)
         .add_child(text);
 
     fps_spawned.0 = true;

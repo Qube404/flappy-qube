@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 
-use super::WindowUiNode;
+use super::{
+    NodeLeftSide,
+    NodeCenterSide,
+    NodeRightSide,
+};
 
 // Constants
 const FPS_TEXT_SIZE: f32 = 48.;
@@ -10,8 +14,7 @@ pub fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut high_score_spawned: ResMut<HighScoreSpawned>,
-    window_node_query: Query<Entity, With<WindowUiNode>>,
-
+    window_node_query: Query<Entity, With<NodeRightSide>>,
 ) {
     if high_score_spawned.0 == true {
         return;
