@@ -76,7 +76,9 @@ fn main() {
                 bird::bird_boundary_collisions,
 
                 game_ui::scoreboard::update_scoreboard,
+
                 game_ui::high_score::update_highscore,
+                game_ui::high_score::update_highscore_text,
 
                 game_over::game_over,
             )

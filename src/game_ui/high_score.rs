@@ -77,6 +77,14 @@ pub fn update_highscore(
     }  
 }
 
+pub fn update_highscore_text(
+    highscore: Res<HighScore>,
+    mut highscore_text: Query<&mut Text, With<HighScoreText>>,
+) {
+    let mut text = highscore_text.single_mut();
+    text.sections[1].value = highscore.highscore.to_string();
+}
+
 // Load high score on open
 
 // Save high score on close
