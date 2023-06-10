@@ -11,6 +11,7 @@ use super::{
 
 // Constants
 const FPS_TEXT_SIZE: f32 = 48.;
+pub const TIME_STEP: f32 = 1.;
 
 // Initial Setup
 pub fn setup(
@@ -41,6 +42,7 @@ pub fn setup(
             }),
         ]),
 
+        FpsTime(Timer::from_seconds(1., TimerMode::Repeating)),
         FpsText,
     )).id();
 
@@ -62,15 +64,25 @@ pub struct FpsNode;
 #[derive(Resource)]
 pub struct FpsSpawned(pub bool);
 
-pub fn update_fps(
-    mut query: Query<&mut Text, With<FpsText>>,
-    diagnostics: Res<Diagnostics>,
-) {
-    let mut text = query.single_mut();
+#[derive(Component)]
+pub struct FpsTime(Timer);
 
-    if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
+pub fn update_fps(
+    mut fps_query: Query<(&mut Text, &mut FpsTime), With<FpsText>>,
+    diagnostics: Res<Diagnostics>,
+    time: Res<Time>,
+) {
+    let (mut text, mut timer) = fps_query.single_mut();
+    
+    timer.0.tick(time.delta());
+    if !timer.0.just_finished() {
+        return;
+    }
+
+    if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS)
+    {
         if let Some(value) = fps.smoothed() {
-            text.sections[1].value = value.to_string();
+            text.sections[1].value = (value as i32).to_string();
         }
     }
 }
