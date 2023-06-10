@@ -113,16 +113,12 @@ pub fn load_high_score(
     loaded.0 = true;
 }
 
-// Save high score on close
+// Save high score on game_over
 pub fn save_high_score(
     highscore: Res<HighScore>,
-    score: Res<Scoreboard>,
 ) {
-    if score.score > highscore.highscore {
-        return;
-    }
-
-    // Truncates file if it exists.
+    // Truncates file if it exists. Probably shouldn't be saving every
+    // time the game is over but will do for now.
     let mut file = File::create("highscore.txt")
         .expect("Should be able to create file");
 

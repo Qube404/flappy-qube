@@ -48,9 +48,8 @@ fn main() {
             .after(game_ui::menu::setup)
         )
 
-        .add_system(game_ui::high_score::load_high_score.in_schedule(OnEnter(AppState::MainMenu))
-            .after(game_ui::high_score::save_high_score))
-        .add_system(game_ui::high_score::save_high_score.in_schedule(OnEnter(AppState::InGame)))
+        .add_system(game_ui::high_score::load_high_score.in_schedule(OnEnter(AppState::MainMenu)))
+        .add_system(game_ui::high_score::save_high_score.in_schedule(OnExit(AppState::InGame)))
 
         .add_system(game_ui::scoreboard::setup.in_schedule(OnEnter(AppState::InGame)))
         .add_system(game_ui::scoreboard::remove_scoreboard_text.in_schedule(OnExit(AppState::InGame)))
