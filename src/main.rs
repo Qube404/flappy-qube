@@ -38,7 +38,6 @@ fn main() {
         .add_startup_system(pipes::setup)
         .add_startup_system(camera::setup)
         .add_startup_system(game_ui::setup)
-        .add_startup_system(debug::setup)
 
         .add_system(game_ui::menu::setup.in_schedule(OnEnter(AppState::MainMenu)))
         .add_system(game_ui::menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
@@ -72,7 +71,6 @@ fn main() {
                 game_ui::fps::update_fps,
 
                 game_ui::high_score::update_highscore_text,
-                //debug::log_points,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )

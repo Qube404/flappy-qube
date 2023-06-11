@@ -149,12 +149,12 @@ pub fn bird_pipe_collisions(
 // Check for collisions with point markers
 pub fn bird_point_collisions(
     mut bird_query: Query<&Transform, With<Bird>>, 
-    mut point_query: Query<(&Transform, &mut BeenAdded, &NumberOf), (With<Collider>, With<PointMarker>)>,
+    mut point_query: Query<(&Transform, &mut BeenAdded), (With<Collider>, With<PointMarker>)>,
     mut scoreboard: ResMut<Scoreboard>,
 ) {
     let bird_transform = bird_query.single_mut();
 
-    for (point_transform, mut been_added, num) in &mut point_query {
+    for (point_transform, mut been_added) in &mut point_query {
         let collision = collide(
             bird_transform.translation,
             bird_transform.scale.truncate(),
