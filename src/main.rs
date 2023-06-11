@@ -1,13 +1,13 @@
 /// A version of flappy bird
 
 use bevy::{prelude::*, diagnostic::FrameTimeDiagnosticsPlugin};
-use game_ui::high_score;
 
 mod bird;
 mod pipes;
 mod camera;
 mod game_over;
 mod game_ui;
+mod debug;
 
 /// Constants
 const TIME_STEP: f32 = 1. / 60.;
@@ -38,6 +38,7 @@ fn main() {
         .add_startup_system(pipes::setup)
         .add_startup_system(camera::setup)
         .add_startup_system(game_ui::setup)
+        .add_startup_system(debug::setup)
 
         .add_system(game_ui::menu::setup.in_schedule(OnEnter(AppState::MainMenu)))
         .add_system(game_ui::menu::remove_menu_text.in_schedule(OnExit(AppState::MainMenu)))
@@ -95,7 +96,7 @@ fn main() {
 }
 
 // Components & Resources used by more then one module outside main
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut, Debug)]
 pub struct Velocity(Vec2);
 
 #[derive(Component)]

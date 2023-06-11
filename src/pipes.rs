@@ -20,7 +20,7 @@ pub const PIPE_AMOUNT: i32 = 6;
 pub const PIPE_HEIGHT_RANGE: RangeInclusive<i32> = 200..=700;
 
 const PIPE_COLOR: Color = Color::rgb(0.1, 0.7, 0.2);
-const POINT_MARKER: Color = Color::rgba(0., 0., 0., 0.);
+const POINT_MARKER: Color = Color::rgba(0., 0., 0., 1.);
 const PIPE_GAP_X: f32 = 500.;
 const PIPE_GAP_Y: f32 = PIPE_Y_SIZE + 250.;
 
@@ -149,7 +149,7 @@ pub struct Pipe;
 #[derive(Component)]
 pub struct PointMarker;
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct Offset(pub f32);
 
 #[derive(Component, Deref, DerefMut)]
@@ -158,7 +158,7 @@ pub struct BeenAdded(pub bool);
 #[derive(Component)]
 pub struct StartingPosition(pub Vec3);
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct NumberOf(pub usize);
 
 // Pipe Movement: Add a constant value to pipes velocity.
