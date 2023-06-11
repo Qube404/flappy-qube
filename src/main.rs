@@ -72,6 +72,7 @@ fn main() {
                 game_ui::fps::update_fps,
 
                 game_ui::high_score::update_highscore_text,
+                debug::log_points,
             )
             .in_schedule(CoreSchedule::FixedUpdate),
         )

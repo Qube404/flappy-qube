@@ -16,15 +16,18 @@ pub fn setup(
 #[derive(Component)]
 pub struct DebugTimer(Timer);
 
-fn log_pipes(
-    pipe_query: Query<(&Transform, &Velocity, &Offset, &NumberOf), With<Pipe>>,
-    mut time_query: Query<&mut DebugTimer>,
+pub fn log_points(
+    pipe_query: Query<(&Velocity, &Offset, &NumberOf, &BeenAdded), (With<PointMarker>, Changed<BeenAdded>)>,
 ) {
-    let mut timer = time_query.single_mut(); 
-    for (transform, velocity, offset, num) in &pipe_query {
-        println!("Transform: {:?}", transform);
-        println!("Velocity: {:?}", velocity);
-        println!("Offset: {:?}", offset);
-        println!("Num: {:?}", num);
+    for (velocity, offset, num, been_added) in &pipe_query {
+        if been_added.0 == true {
+            println!("----------------");
+            println!("Point Num: {:?}", num.0);
+            println!("  Velocity: {:?}", velocity.0);
+            println!("  Offset: {:?}", offset.0);
+            println!("  Been Added: {:?}", been_added.0);
+            println!("----------------");
+            println!("\n");
+        }
     }
 }
