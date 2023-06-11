@@ -100,7 +100,9 @@ pub fn setup(
                             pipe_height - PIPE_GAP_Y / 2.,
                             1.
                         ),
-                        scale: Vec3::new(1., PIPE_GAP_Y - PIPE_Y_SIZE, 0.),
+                        // Increased scale of x to 10 from 1 to account for potential
+                        // collision skipping when lagging.
+                        scale: Vec3::new(10., PIPE_GAP_Y - PIPE_Y_SIZE, 0.),
                         ..default()
                     },
                     ..default()
@@ -152,7 +154,7 @@ pub struct PointMarker;
 #[derive(Component, Debug)]
 pub struct Offset(pub f32);
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Debug)]
 pub struct BeenAdded(pub bool);
 
 #[derive(Component)]
@@ -170,8 +172,8 @@ pub fn move_pipes(
         &mut Velocity, 
         &Offset, 
         Option<&PointMarker>, 
-        Option<&mut BeenAdded
-    >), 
+        Option<&mut BeenAdded>,
+    ), 
         With<Collider>
     >,
 ) {
@@ -189,9 +191,11 @@ pub fn move_pipes(
         } else if x_pos <= -1000. + PIPE_X_SIZE / 2. && point_marker.is_some() {
             transform.translation.x = 2000. + PIPE_X_SIZE / 2.;
             transform.translation.y = pipe_height + offset.0;
-            been_added
-                .expect("Should be Some<T>")
-                .0 = false;
+
+            let mut been_added = been_added
+                .expect("Should be Seme<T>");
+
+            been_added.0 = false;
         }
     }
 }
