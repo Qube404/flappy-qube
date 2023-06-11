@@ -11,7 +11,6 @@ use super::{
     pipes::Pipe,
     pipes::PointMarker,
     pipes::BeenAdded,
-    pipes::NumberOf,
     pipes::PIPE_X_SIZE,
     pipes::PIPE_Y_SIZE,
 };
@@ -66,11 +65,18 @@ pub struct SpeedCap(Vec2);
 #[derive(Default)]
 pub struct BirdCollisionEvent;
 
+#[derive(Default)]
+pub struct BirdJumpEvent;
+
+#[derive(Default)]
+pub struct BirdPointEvent;
+
 // Player movement by adding to birds velocity
 pub fn move_bird(
     keyboard_input: Res<Input<KeyCode>>,
     mouse_input: Res<Input<MouseButton>>,
     mut query: Query<(&mut Velocity, &SpeedCap), With<Bird>>,
+    mut bird_jump_event: EventWriter<BirdJumpEvent>
 ) {
     let (mut bird_velocity, speed_cap) = query.single_mut();
     
@@ -80,6 +86,8 @@ pub fn move_bird(
         keyboard_input.just_pressed(KeyCode::Space) ||
         mouse_input.just_pressed(MouseButton::Left)
     {
+        bird_jump_event.send_default();
+
         // Caps the velocity so spamming doesn't
         // endlessly speed up the player
         if bird_velocity.y < speed_cap.y {
@@ -151,6 +159,7 @@ pub fn bird_point_collisions(
     mut bird_query: Query<&Transform, With<Bird>>, 
     mut point_query: Query<(&Transform, &mut BeenAdded), (With<Collider>, With<PointMarker>)>,
     mut scoreboard: ResMut<Scoreboard>,
+    mut point_event: EventWriter<BirdPointEvent>,
 ) {
     let bird_transform = bird_query.single_mut();
 
@@ -165,6 +174,8 @@ pub fn bird_point_collisions(
         if collision.is_some() && been_added.0 == false {
             scoreboard.score += 1;
             been_added.0 = true;
+
+            point_event.send_default();
         }
     }
 }
@@ -221,11 +232,45 @@ pub fn game_start(
 
 // Idle Jumping for menu state
 pub fn idle_bird_jump(
-    mut query: Query<(&Transform, &mut Velocity), With<Bird>>
+    mut query: Query<(&Transform, &mut Velocity), With<Bird>>,
+    mut bird_jump_event: EventWriter<BirdJumpEvent>,
 ) {
     let (transform, mut velocity) = query.single_mut();
 
     if transform.translation.y <= -100. {
         velocity.y = BIRD_JUMP * TIME_STEP;
+        bird_jump_event.send_default();
     }
+}
+
+// Bird Jump Sound
+pub fn bird_jump_sound(
+    bird_jump_event: EventReader<BirdJumpEvent>,
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
+) {
+    if bird_jump_event.is_empty() {
+        return;
+    }
+
+    let jump_sound = asset_server
+        .load("sounds/jump.mp3");
+
+    audio.play(jump_sound);
+}
+
+// Bird Point Sound
+pub fn bird_point_sound(
+    bird_point_event: EventReader<BirdPointEvent>,
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
+) {
+    if bird_point_event.is_empty() {
+        return;
+    }
+
+    let point_sound = asset_server
+        .load("sounds/point.mp3");
+
+    audio.play(point_sound);
 }

@@ -33,6 +33,8 @@ fn main() {
         .insert_resource(ClearColor(BACKGROUND_COLOR))
 
         .add_event::<bird::BirdCollisionEvent>()
+        .add_event::<bird::BirdJumpEvent>()
+        .add_event::<bird::BirdPointEvent>()
 
         .add_startup_system(bird::setup)
         .add_startup_system(pipes::setup)
@@ -65,6 +67,9 @@ fn main() {
                 bird::apply_bird_velocity,
                 bird::apply_bird_gravity,
                 bird::rotate_bird,
+
+                bird::bird_jump_sound,
+                bird::bird_point_sound,
 
                 pipes::apply_pipes_velocity,
 

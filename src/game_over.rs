@@ -34,6 +34,9 @@ pub fn game_over(
     mut score: ResMut<Scoreboard>,
     collision_event: EventReader<super::bird::BirdCollisionEvent>,
     mut next_state: ResMut<NextState<AppState>>,
+
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
 ) {
     let mut rand = thread_rng();
     let mut random_heights: Vec<f32> = Vec::new();
@@ -44,6 +47,10 @@ pub fn game_over(
     }
 
     if !collision_event.is_empty() {
+        let game_over_sound = asset_server
+            .load("sounds/game_over.mp3");
+        audio.play(game_over_sound);
+
         // Score
         score.score = 0;
 
